@@ -8,7 +8,7 @@
 }
 
 .display {
-  height: 100px;
+  height: 80px;
   width: 380px;
   border: 1px solid black;
 }
@@ -41,4 +41,6 @@
 
 body {
   background-color: black;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
