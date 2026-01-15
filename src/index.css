@@ -28,6 +28,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin-top: 25px;
 }
 
 .button-row {
@@ -48,7 +49,9 @@
 
 .op-buttons:active {
   /* Shrinks to 90% of original size when clicked */
-  transform: scale(0.9);
+
+  background-color: gray !important;
+  font-size: 20px;
 }
 
 body {

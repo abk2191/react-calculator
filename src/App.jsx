@@ -25,20 +25,20 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "grey", color: "white" }}
+              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
               onClick={() => displayOperations("C")}
             >
               C
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "grey", color: "white" }}
+              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
             >
               ()
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "grey", color: "white" }}
+              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
               onClick={() => displayOperations("%")}
             >
               %
@@ -54,21 +54,21 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("7")}
             >
               7
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("8")}
             >
               8
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("9")}
             >
               9
@@ -84,21 +84,21 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("4")}
             >
               4
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("5")}
             >
               5
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("6")}
             >
               6
@@ -114,21 +114,21 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("1")}
             >
               1
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("2")}
             >
               2
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("3")}
             >
               3
@@ -144,20 +144,20 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
             >
               +/-
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("0")}
             >
               0
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "#373737", color: "white" }}
+              style={{ backgroundColor: "#1a1a1a", color: "white" }}
             >
               .
             </button>
