@@ -259,7 +259,7 @@ function App() {
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("÷")}
             >
-              ÷
+              <i class="fa-solid fa-divide"></i>
             </button>
           </div>
           <div className="button-row">
@@ -289,7 +289,7 @@ function App() {
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("x")}
             >
-              x
+              <i class="fa-solid fa-xmark"></i>
             </button>
           </div>
           <div className="button-row">
@@ -319,7 +319,7 @@ function App() {
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("-")}
             >
-              -
+              <i class="fa-solid fa-minus"></i>
             </button>
           </div>
           <div className="button-row">
@@ -349,7 +349,7 @@ function App() {
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
               onClick={() => displayOperations("+")}
             >
-              +
+              <i class="fa-solid fa-plus"></i>
             </button>
           </div>
           <div className="button-row">
