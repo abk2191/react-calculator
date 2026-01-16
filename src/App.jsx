@@ -22,7 +22,20 @@ function App() {
 
       // Use eval (with caution - okay for calculator app)
       const calculatedResult = eval(expression);
-      setResult(calculatedResult.toString());
+
+      // Format to maximum 5 decimal places
+      let resultStr;
+
+      if (Number.isInteger(calculatedResult)) {
+        resultStr = calculatedResult.toString();
+      } else {
+        // Round to 5 decimal places
+        const rounded = Math.round(calculatedResult * 100000) / 100000;
+        // Convert to string and remove trailing zeros
+        resultStr = parseFloat(rounded.toString()).toString();
+      }
+
+      setResult(resultStr);
     } catch (error) {
       setResult("Error");
     }
