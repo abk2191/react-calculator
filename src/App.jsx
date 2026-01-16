@@ -238,21 +238,21 @@ function App() {
           <div className="button-row">
             <button
               className="op-buttons"
-              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
+              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
               onClick={() => displayOperations("C")}
             >
               C
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
+              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
               onClick={() => displayOperations("( )")}
             >
               ( )
             </button>
             <button
               className="op-buttons"
-              style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
+              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
               onClick={() => displayOperations("%")}
             >
               %
