@@ -87,7 +87,7 @@ body {
 /* When app is in standalone mode (installed as PWA) */
 @media all and (display-mode: standalone) {
   .keyboarrd {
-    margin-top: 110px; /* Adds 25px to the existing 45px = 70px total */
+    margin-top: 130px; /* Adds 25px to the existing 45px = 70px total */
   }
 
   /* Optional: Handle safe areas for notches */
@@ -104,14 +104,14 @@ body {
 /* When app is in fullscreen mode */
 @media all and (display-mode: fullscreen) {
   .keyboarrd {
-    margin-top: 110px;
+    margin-top: 130px;
   }
 }
 
 /* When app is in minimal-ui mode */
 @media all and (display-mode: minimal-ui) {
   .keyboarrd {
-    margin-top: 110px;
+    margin-top: 130px;
   }
 }
 
