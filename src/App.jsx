@@ -235,7 +235,7 @@ function App() {
               padding: "0",
             }}
           >
-            ______________________________________________
+            _______________________________________________
           </span>
           <div className="delete-btn-div">
             <button className="delete-button" onClick={handleDelete}>
