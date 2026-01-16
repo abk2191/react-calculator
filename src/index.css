@@ -10,19 +10,42 @@
 .display {
   height: 80px;
   width: 380px;
-  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+
   text-align: right;
-  margin-right: 25px;
+  /* margin-right: 25px; */
 }
 
-/* .operation-display {
-  font-size: 35px;
-} */
+.delete-btn-div {
+  width: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  margin-right: 40px;
+}
+
+.result-text {
+  margin-right: 20px;
+}
+
+.expression-display {
+  margin-right: 20px;
+}
+.delete-button {
+  background: none;
+  border: none;
+  color: green;
+  font-size: 30px;
+}
+
+.result {
+}
 
 .keyboarrd {
   height: 600px;
   width: 380px;
-  border: 1px solid black;
+
   display: flex;
   flex-direction: column;
   align-items: center;

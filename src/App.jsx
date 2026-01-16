@@ -94,6 +94,29 @@ function App() {
     );
   }
 
+  function handleDelete() {
+    setOpvalue((prevValue) => {
+      if (!prevValue || prevValue.trim() === "") {
+        return "";
+      }
+
+      // Trim the value to handle trailing spaces
+      const trimmedValue = prevValue.trim();
+
+      // Check if the last character is a space (meaning it's an operator with spaces)
+      if (prevValue.endsWith(" ")) {
+        // Remove the last 3 characters (operator with spaces: " + ")
+        return prevValue.slice(0, -3);
+      } else {
+        // Remove just the last character
+        return prevValue.slice(0, -1);
+      }
+    });
+
+    // Clear the result when deleting (optional but recommended)
+    setResult("");
+  }
+
   return (
     <>
       <div className="calculator-container">
@@ -117,7 +140,13 @@ function App() {
             </p>
           </div>
         </div>
+
         <div className="keyboarrd">
+          <div className="delete-btn-div">
+            <button className="delete-button" onClick={handleDelete}>
+              <i class="fa-solid fa-delete-left"></i>
+            </button>
+          </div>
           <div className="button-row">
             <button
               className="op-buttons"
