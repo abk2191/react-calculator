@@ -3,6 +3,7 @@ import { useState } from "react";
 function App() {
   const [opvalue, setOpvalue] = useState("");
   const [result, setResult] = useState("");
+  const [parenCount, setParenCount] = useState(0);
 
   function calculateExpression() {
     setOpvalue("");
@@ -34,6 +35,24 @@ function App() {
       return;
     }
 
+    // Handle parentheses
+    if (value === "( )") {
+      setOpvalue((prevValue) => {
+        // Count parentheses in the current expression
+        const openParens = (prevValue.match(/\(/g) || []).length;
+        const closeParens = (prevValue.match(/\)/g) || []).length;
+
+        if (openParens <= closeParens) {
+          // Add opening parenthesis (we need more opens)
+          return prevValue + "(";
+        } else {
+          // Add closing parenthesis (we have more opens than closes)
+          return prevValue + ")";
+        }
+      });
+      return;
+    }
+
     // Check if the value is an operator that needs spaces
     const operators = ["%", "÷", "x", "-", "+"];
     let formattedValue = value;
@@ -54,7 +73,6 @@ function App() {
   function renderOperationDisplay() {
     const operators = ["%", "÷", "x", "-", "+"];
 
-    // If there's no value, return empty paragraph
     if (!opvalue) {
       return (
         <p
@@ -64,29 +82,25 @@ function App() {
       );
     }
 
-    // Split the expression by operators and keep the operators
-    const parts = opvalue
-      .split(/([+\-x÷%])/)
-      .filter((part) => part.trim() !== "");
-
+    // Just render the opvalue as-is, but color the operators
+    // We'll use a character-by-character approach
     return (
       <p
         style={{ color: "white", fontFamily: "Inter, sans-serif" }}
         className="operation-display"
       >
-        {parts.map((part, index) => {
-          if (operators.includes(part.trim())) {
-            // Render operators in green
+        {opvalue.split("").map((char, index) => {
+          const trimmedChar = char.trim();
+          if (operators.includes(trimmedChar)) {
             return (
               <span key={index} style={{ color: "greenyellow" }}>
-                {part}
+                {char}
               </span>
             );
           }
-          // Render numbers in white
           return (
             <span key={index} style={{ color: "white" }}>
-              {part}
+              {char}
             </span>
           );
         })}
@@ -97,17 +111,38 @@ function App() {
   function handleDelete() {
     setOpvalue((prevValue) => {
       if (!prevValue || prevValue.trim() === "") {
+        setParenCount(0); // Reset count if expression is empty
         return "";
       }
 
       // Trim the value to handle trailing spaces
       const trimmedValue = prevValue.trim();
 
-      // Check if the last character is a space (meaning it's an operator with spaces)
+      // Check what we're deleting
+      const lastChar = prevValue.slice(-1);
+      const lastThreeChars = prevValue.slice(-3);
+
+      // Check if we're deleting an operator with spaces
       if (prevValue.endsWith(" ")) {
-        // Remove the last 3 characters (operator with spaces: " + ")
-        return prevValue.slice(0, -3);
+        // Check if it's an operator with spaces (like " + ", " - ", etc.)
+        const operatorsWithSpaces = [" + ", " - ", " x ", " ÷ ", " % "];
+
+        if (operatorsWithSpaces.some((op) => lastThreeChars === op)) {
+          // Remove the operator with spaces
+          return prevValue.slice(0, -3);
+        } else {
+          // Just remove trailing space
+          return prevValue.trimEnd();
+        }
       } else {
+        // We're deleting a single character
+        // Check if it's a parenthesis and decrement count
+        if (lastChar === "(" || lastChar === ")") {
+          setParenCount((prevCount) => {
+            // Ensure count doesn't go below 0
+            return Math.max(0, prevCount - 1);
+          });
+        }
         // Remove just the last character
         return prevValue.slice(0, -1);
       }
@@ -158,6 +193,7 @@ function App() {
             <button
               className="op-buttons"
               style={{ backgroundColor: "rgb(84, 84, 84)", color: "white" }}
+              onClick={() => displayOperations("( )")}
             >
               ( )
             </button>
@@ -283,6 +319,7 @@ function App() {
             <button
               className="op-buttons"
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
+              onClick={() => displayOperations(".")}
             >
               .
             </button>
