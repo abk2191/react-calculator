@@ -268,16 +268,18 @@ function Calculator() {
         </div>
 
         <div className="container">
-          <span
-            style={{
-              color: "rgb(57, 57, 57)",
-              marginBottom: "0px",
-              margin: "0",
-              padding: "0",
-            }}
-          >
-            _______________________________________________
-          </span>
+          <div className="divider-span">
+            <span
+              style={{
+                color: "rgb(57, 57, 57)",
+                marginBottom: "0px",
+                margin: "0",
+                padding: "0",
+              }}
+            >
+              _______________________________________________
+            </span>
+          </div>
           <div className="operation-buttons-div">
             <div className="history-button-div">
               <button
