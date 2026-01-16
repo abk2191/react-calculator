@@ -11,13 +11,13 @@
   height: 80px;
   width: 380px;
   border: 1px solid black;
-  text-align: center;
+  text-align: right;
+  margin-right: 25px;
 }
 
-.operation-display {
-  font-size: 25px;
-  font-family: "Inter", sans-serif;
-}
+/* .operation-display {
+  font-size: 35px;
+} */
 
 .keyboarrd {
   height: 600px;
@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 25px;
+  margin-top: 45px;
 }
 
 .button-row {
