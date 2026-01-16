@@ -227,7 +227,14 @@ function App() {
         </div>
 
         <div className="keyboarrd">
-          <span style={{ color: "grey", marginBottom: "4px" }}>
+          <span
+            style={{
+              color: "grey",
+              marginBottom: "4px",
+              margin: "0",
+              padding: "0",
+            }}
+          >
             _____________________________________________
           </span>
           <div className="delete-btn-div">
