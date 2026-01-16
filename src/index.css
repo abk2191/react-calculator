@@ -27,7 +27,9 @@
 }
 
 .result-text {
+  margin-top: 100px;
   margin-right: 20px;
+  line-height: 1;
 }
 
 .expression-display {
@@ -39,9 +41,6 @@
   border: none;
   color: gold;
   font-size: 30px;
-}
-
-.result {
 }
 
 .keyboarrd {
