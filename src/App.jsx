@@ -152,6 +152,43 @@ function App() {
     setResult("");
   }
 
+  function handlePlusMinus() {
+    setOpvalue((prevValue) => {
+      if (!prevValue || prevValue.trim() === "") {
+        return prevValue;
+      }
+
+      // Simple approach: Find where the last number starts
+      const trimmed = prevValue.trim();
+      const operators = ["+", "-", "x", "÷", "%", " "];
+
+      // Find the start of the last number by looking backwards
+      let i = trimmed.length - 1;
+      while (
+        i >= 0 &&
+        !operators.includes(trimmed[i]) &&
+        trimmed[i] !== "(" &&
+        trimmed[i] !== ")"
+      ) {
+        i--;
+      }
+
+      // i is now at the character before the last number starts
+      const beforeNum = trimmed.substring(0, i + 1);
+      const lastNum = trimmed.substring(i + 1);
+
+      // Check if the last number is already negative
+      if (lastNum.startsWith("(-") && lastNum.endsWith(")")) {
+        // Remove the negative wrapper
+        const positiveNum = lastNum.substring(2, lastNum.length - 1);
+        return beforeNum + positiveNum;
+      } else {
+        // Wrap the number in (- ... )
+        return beforeNum + "(-" + lastNum + ")";
+      }
+    });
+  }
+
   return (
     <>
       <div className="calculator-container">
@@ -306,6 +343,7 @@ function App() {
             <button
               className="op-buttons"
               style={{ backgroundColor: "#1a1a1a", color: "white" }}
+              onClick={handlePlusMinus}
             >
               +/-
             </button>
