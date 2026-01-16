@@ -229,13 +229,13 @@ function App() {
         <div className="keyboarrd">
           <span
             style={{
-              color: "grey",
-              marginBottom: "4px",
+              color: "rgb(57, 57, 57)",
+              marginBottom: "0px",
               margin: "0",
               padding: "0",
             }}
           >
-            _____________________________________________
+            ______________________________________________
           </span>
           <div className="delete-btn-div">
             <button className="delete-button" onClick={handleDelete}>
