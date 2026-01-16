@@ -98,7 +98,7 @@ function App() {
     <>
       <div className="calculator-container">
         <div className="display">
-          <div className="expression-display" style={{ fontSize: "50px" }}>
+          <div className="expression-display" style={{ fontSize: "35px" }}>
             {renderOperationDisplay()}
           </div>
           <div className="result">
