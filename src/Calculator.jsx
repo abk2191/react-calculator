@@ -4,6 +4,7 @@ function Calculator() {
   const [opvalue, setOpvalue] = useState("");
   const [result, setResult] = useState("");
   const [lastWasEquals, setLastWasEquals] = useState(false);
+  const [renderCalculator, setRenderCalculator] = useState(true);
 
   function calculateExpression() {
     setOpvalue("");
@@ -266,7 +267,7 @@ function Calculator() {
           </div>
         </div>
 
-        <div className="keyboarrd">
+        <div className="container">
           <span
             style={{
               color: "rgb(57, 57, 57)",
@@ -277,161 +278,215 @@ function Calculator() {
           >
             _______________________________________________
           </span>
-          <div className="delete-btn-div">
-            <button className="delete-button" onClick={handleDelete}>
-              <i className="fa-solid fa-delete-left"></i>
-            </button>
+          <div className="operation-buttons-div">
+            <div className="history-button-div">
+              <button
+                className="history-button"
+                onClick={() => setRenderCalculator(false)}
+              >
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </button>
+            </div>
+
+            <div className="calculator-button-div">
+              <button
+                className="calculator-button"
+                onClick={() => setRenderCalculator(true)}
+              >
+                <i class="fa-solid fa-calculator"></i>
+              </button>
+            </div>
+
+            <div className="delete-btn-div">
+              <button className="delete-button" onClick={handleDelete}>
+                <i className="fa-solid fa-delete-left"></i>
+              </button>
+            </div>
           </div>
-          <div className="button-row">
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-              onClick={() => displayOperations("C")}
+
+          {renderCalculator && (
+            <div className="keyboarrd">
+              {/* <span
+              style={{
+                color: "rgb(57, 57, 57)",
+                marginBottom: "0px",
+                margin: "0",
+                padding: "0",
+              }}
             >
-              C
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-              onClick={() => displayOperations("( )")}
-            >
-              ( )
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-              onClick={() => displayOperations("%")}
-            >
-              %
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("÷")}
-            >
-              <i className="fa-solid fa-divide"></i>
-            </button>
-          </div>
-          <div className="button-row">
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("7")}
-            >
-              7
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("8")}
-            >
-              8
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("9")}
-            >
-              9
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("x")}
-            >
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <div className="button-row">
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("4")}
-            >
-              4
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("5")}
-            >
-              5
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("6")}
-            >
-              6
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("-")}
-            >
-              <i className="fa-solid fa-minus"></i>
-            </button>
-          </div>
-          <div className="button-row">
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("1")}
-            >
-              1
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("2")}
-            >
-              2
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("3")}
-            >
-              3
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("+")}
-            >
-              <i className="fa-solid fa-plus"></i>
-            </button>
-          </div>
-          <div className="button-row">
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={handlePlusMinus}
-            >
-              +/-
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations("0")}
-            >
-              0
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "#1a1a1a", color: "white" }}
-              onClick={() => displayOperations(".")}
-            >
-              .
-            </button>
-            <button
-              className="op-buttons"
-              style={{ backgroundColor: "green", color: "white" }}
-              onClick={calculateExpression}
-            >
-              =
-            </button>
-          </div>
+              _______________________________________________
+            </span>
+            <div className="operation-buttons-div">
+              <div className="history-button-div">
+                <button className="history-button">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+              </div>
+
+              <div className="calculator-button-div">
+                <button className="calculator-button">
+                  <i class="fa-solid fa-calculator"></i>
+                </button>
+              </div>
+
+              <div className="delete-btn-div">
+                <button className="delete-button" onClick={handleDelete}>
+                  <i className="fa-solid fa-delete-left"></i>
+                </button>
+              </div>
+            </div> */}
+              <div className="button-row">
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
+                  onClick={() => displayOperations("C")}
+                >
+                  C
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
+                  onClick={() => displayOperations("( )")}
+                >
+                  ( )
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
+                  onClick={() => displayOperations("%")}
+                >
+                  %
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("÷")}
+                >
+                  <i className="fa-solid fa-divide"></i>
+                </button>
+              </div>
+              <div className="button-row">
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("7")}
+                >
+                  7
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("8")}
+                >
+                  8
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("9")}
+                >
+                  9
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("x")}
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div className="button-row">
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("4")}
+                >
+                  4
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("5")}
+                >
+                  5
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("6")}
+                >
+                  6
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("-")}
+                >
+                  <i className="fa-solid fa-minus"></i>
+                </button>
+              </div>
+              <div className="button-row">
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("1")}
+                >
+                  1
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("2")}
+                >
+                  2
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("3")}
+                >
+                  3
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("+")}
+                >
+                  <i className="fa-solid fa-plus"></i>
+                </button>
+              </div>
+              <div className="button-row">
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={handlePlusMinus}
+                >
+                  +/-
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations("0")}
+                >
+                  0
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
+                  onClick={() => displayOperations(".")}
+                >
+                  .
+                </button>
+                <button
+                  className="op-buttons"
+                  style={{ backgroundColor: "green", color: "white" }}
+                  onClick={calculateExpression}
+                >
+                  =
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -18,11 +18,10 @@
 }
 
 .delete-btn-div {
-  width: 380px;
   display: flex;
   align-items: center;
   justify-content: right;
-  margin-right: 40px;
+  /* margin-right: 40px; */
   height: auto;
 }
 
@@ -51,6 +50,10 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  /* margin-top: 80px; */
+}
+
+.container {
   margin-top: 80px;
 }
 
@@ -81,6 +84,32 @@ body {
   background-color: black;
   overflow-y: hidden;
   overflow-x: hidden;
+}
+
+.operation-buttons-div {
+  width: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+  gap: 100px;
+  padding: 10px;
+}
+
+.history-button {
+  border: none;
+  background: none;
+  color: greenyellow;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.calculator-button {
+  border: none;
+  background: none;
+  color: greenyellow;
+  font-size: 30px;
+  cursor: pointer;
 }
 
 /* When app is in standalone mode (installed as PWA) */
