@@ -87,12 +87,12 @@ body {
 /* When app is in standalone mode (installed as PWA) */
 @media all and (display-mode: standalone) {
   .keyboarrd {
-    margin-top: 70px; /* Adds 25px to the existing 45px = 70px total */
+    margin-top: 90px; /* Adds 25px to the existing 45px = 70px total */
   }
 
   /* Optional: Handle safe areas for notches */
   .calculator-container {
-    padding-top: env(safe-area-inset-top, 20px);
+    padding-top: env(safe-area-inset-top, 40px);
   }
 
   /* Optional: Adjust delete button position */
@@ -104,14 +104,14 @@ body {
 /* When app is in fullscreen mode */
 @media all and (display-mode: fullscreen) {
   .keyboarrd {
-    margin-top: 70px;
+    margin-top: 90px;
   }
 }
 
 /* When app is in minimal-ui mode */
 @media all and (display-mode: minimal-ui) {
   .keyboarrd {
-    margin-top: 70px;
+    margin-top: 90px;
   }
 }
 
