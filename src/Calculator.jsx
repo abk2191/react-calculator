@@ -280,29 +280,31 @@ function Calculator() {
               _______________________________________________
             </span>
           </div>
-          <div className="operation-buttons-div">
-            <div className="history-button-div">
-              <button
-                className="history-button"
-                onClick={() => setRenderCalculator(false)}
-              >
-                <i class="fa-solid fa-clock-rotate-left"></i>
-              </button>
-            </div>
+          <div className="container-two">
+            <div className="operation-buttons-div">
+              <div className="history-button-div">
+                <button
+                  className="history-button"
+                  onClick={() => setRenderCalculator(false)}
+                >
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+              </div>
 
-            <div className="calculator-button-div">
-              <button
-                className="calculator-button"
-                onClick={() => setRenderCalculator(true)}
-              >
-                <i class="fa-solid fa-calculator"></i>
-              </button>
-            </div>
+              <div className="calculator-button-div">
+                <button
+                  className="calculator-button"
+                  onClick={() => setRenderCalculator(true)}
+                >
+                  <i class="fa-solid fa-calculator"></i>
+                </button>
+              </div>
 
-            <div className="delete-btn-div">
-              <button className="delete-button" onClick={handleDelete}>
-                <i className="fa-solid fa-delete-left"></i>
-              </button>
+              <div className="delete-btn-div">
+                <button className="delete-button" onClick={handleDelete}>
+                  <i className="fa-solid fa-delete-left"></i>
+                </button>
+              </div>
             </div>
           </div>
 
