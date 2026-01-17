@@ -401,7 +401,7 @@ function Calculator() {
       <div className="brand">
         <h3
           style={{
-            color: "whitesmoke",
+            color: "gold",
             fontSize: "14px",
             fontFamily: "Inter, sans-serif",
           }}
