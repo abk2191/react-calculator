@@ -639,6 +639,8 @@ function Calculator() {
                           style={{
                             color: "white",
                             // margin: "0 0 5px 0",
+                            padding: "15px",
+                            fontFamily: "Inter, sans-serif",
                             fontSize: "20px",
                           }}
                         >
