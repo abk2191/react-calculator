@@ -152,6 +152,14 @@ body {
   background: rgba(128, 128, 128, 0.5);
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  -webkit-touch-callout: none; /* Prevent callout on long-press */
+  -webkit-user-select: none; /* Prevent text selection */
+  user-select: none;
+}
+
 /* PWA-specific adjustments when app is installed as standalone */
 @media (display-mode: fullscreen) {
   .divider-span {
