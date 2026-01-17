@@ -155,14 +155,14 @@ body {
 /* PWA-specific adjustments when app is installed as standalone */
 @media (display-mode: standalone) {
   .divider-span {
-    margin-top: 65px;
+    margin-top: 95px;
   }
 
   .operation-buttons-div {
-    margin-top: 71px; /* 6px + 25px */
+    margin-top: 101px; /* 6px + 25px */
   }
 
   .keyboarrd {
-    margin-top: 145px; /* 80px + 25px */
+    margin-top: 175px; /* 80px + 25px */
   }
 }
