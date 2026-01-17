@@ -122,4 +122,32 @@ body {
   cursor: pointer;
 }
 
-/* When app is in standalone mode (installed as PWA) */
+.history {
+  width: 380px;
+  height: 400px;
+  overflow: auto;
+}
+
+.history-list-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.history::-webkit-scrollbar {
+  width: 8px;
+}
+
+.history::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.history::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+}
+
+.history::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}

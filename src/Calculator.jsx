@@ -1,13 +1,111 @@
 import { useState } from "react";
 
 function Calculator() {
-  const [opvalue, setOpvalue] = useState("");
+  const [opvalue, setOpvalue] = useState(""); // Store without commas
+  const [displayValue, setDisplayValue] = useState(""); // Display with commas
   const [result, setResult] = useState("");
   const [lastWasEquals, setLastWasEquals] = useState(false);
   const [renderCalculator, setRenderCalculator] = useState(true);
+  const [history, setHistory] = useState([]);
+
+  // Function to format numbers with commas (Indian numbering system)
+  function formatNumberWithCommas(numberStr) {
+    if (!numberStr) return "";
+
+    // Remove any existing commas
+    const numStr = numberStr.replace(/,/g, "");
+
+    // Split into integer and decimal parts
+    const parts = numStr.split(".");
+    let integerPart = parts[0];
+    const decimalPart = parts.length > 1 ? "." + parts[1] : "";
+
+    // Handle negative numbers
+    let isNegative = false;
+    if (integerPart.startsWith("-")) {
+      isNegative = true;
+      integerPart = integerPart.substring(1);
+    }
+
+    // Format integer part with commas (Indian numbering system)
+    let lastThree = integerPart.substring(integerPart.length - 3);
+    let otherNumbers = integerPart.substring(0, integerPart.length - 3);
+
+    if (otherNumbers !== "") {
+      lastThree = "," + lastThree;
+    }
+
+    let result = lastThree;
+    let count = 0;
+
+    for (let i = otherNumbers.length - 1; i >= 0; i--) {
+      count++;
+      result = otherNumbers.charAt(i) + result;
+      if (count === 2 && i !== 0) {
+        result = "," + result;
+        count = 0;
+      }
+    }
+
+    // Add negative sign back if needed
+    if (isNegative) {
+      result = "-" + result;
+    }
+
+    return result + decimalPart;
+  }
+
+  // Function to parse and format expression with commas
+  function formatExpression(expression) {
+    if (!expression) return "";
+
+    // Split the expression by operators (keeping the operators)
+    const operators = ["+", "-", "x", "÷", "%"];
+    let formattedExpression = "";
+    let currentNumber = "";
+
+    for (let i = 0; i < expression.length; i++) {
+      const char = expression[i];
+
+      // Check if character is part of a number (digit, decimal point, or minus sign at start of number)
+      if (
+        /[\d.]/.test(char) ||
+        (char === "-" && (i === 0 || /[+\-x÷%\s(]/.test(expression[i - 1])))
+      ) {
+        currentNumber += char;
+      } else {
+        // Format the accumulated number if exists
+        if (currentNumber) {
+          formattedExpression += formatNumberWithCommas(currentNumber);
+          currentNumber = "";
+        }
+
+        // Add the non-number character (operator, space, parenthesis, etc.)
+        formattedExpression += char;
+      }
+    }
+
+    // Format any remaining number at the end
+    if (currentNumber) {
+      formattedExpression += formatNumberWithCommas(currentNumber);
+    }
+
+    return formattedExpression;
+  }
+
+  // Function to add calculation to history
+  function addToHistory(expression, result) {
+    const historyItem = {
+      id: Date.now(),
+      expression: expression,
+      result: result,
+    };
+
+    setHistory((prevHistory) => [historyItem, ...prevHistory]);
+  }
 
   function calculateExpression() {
-    setOpvalue("");
+    setDisplayValue("");
     setLastWasEquals(true);
     try {
       if (opvalue.trim() === "") {
@@ -15,7 +113,7 @@ function Calculator() {
         return;
       }
 
-      // First remove spaces for calculation
+      // First remove spaces for calculation (commas are already not in opvalue)
       let expression = opvalue
         .replace(/\s+/g, "") // Remove all spaces
         .replace(/x/g, "*")
@@ -37,7 +135,12 @@ function Calculator() {
         resultStr = parseFloat(rounded.toString()).toString();
       }
 
-      setResult(resultStr);
+      // Format the result with commas
+      const formattedResult = formatNumberWithCommas(resultStr);
+      setResult(formattedResult);
+
+      // Add to history
+      addToHistory(displayValue, formattedResult);
     } catch (error) {
       setResult("Error");
       setLastWasEquals(false);
@@ -48,6 +151,7 @@ function Calculator() {
     setResult("");
     if (value === "C") {
       setOpvalue("");
+      setDisplayValue("");
       setResult("");
       setLastWasEquals(false);
       return;
@@ -64,20 +168,29 @@ function Calculator() {
         // If we just got a result, start fresh with the result
         if (lastWasEquals && result) {
           setLastWasEquals(false);
-          return result + "(";
+          // Remove commas from result for new expression
+          const resultWithoutCommas = result.replace(/,/g, "");
+          // Update display
+          setDisplayValue(formatExpression(resultWithoutCommas + "("));
+          return resultWithoutCommas + "(";
         }
 
         // Count parentheses in the current expression
         const openParens = (prevValue.match(/\(/g) || []).length;
         const closeParens = (prevValue.match(/\)/g) || []).length;
 
+        let newOpvalue;
         if (openParens <= closeParens) {
           // Add opening parenthesis (we need more opens)
-          return prevValue + "(";
+          newOpvalue = prevValue + "(";
         } else {
           // Add closing parenthesis (we have more opens than closes)
-          return prevValue + ")";
+          newOpvalue = prevValue + ")";
         }
+
+        // Update display with formatted value
+        setDisplayValue(formatExpression(newOpvalue));
+        return newOpvalue;
       });
       return;
     }
@@ -87,7 +200,11 @@ function Calculator() {
 
     // If we just pressed equals and have a result, start new expression with result
     if (lastWasEquals && result && operators.includes(value)) {
-      setOpvalue(result + ` ${value} `);
+      // Remove commas from result for calculation
+      const resultWithoutCommas = result.replace(/,/g, "");
+      const newOpvalue = resultWithoutCommas + ` ${value} `;
+      setOpvalue(newOpvalue);
+      setDisplayValue(formatExpression(newOpvalue));
       setLastWasEquals(false);
       return;
     }
@@ -100,6 +217,7 @@ function Calculator() {
       value !== "( )"
     ) {
       setOpvalue(value);
+      setDisplayValue(formatExpression(value));
       setLastWasEquals(false);
       return;
     }
@@ -117,10 +235,14 @@ function Calculator() {
         return prevValue; // Don't add the new value
       }
 
-      if (prevValue === null || prevValue === "") {
-        return formattedValue;
-      }
-      return prevValue + formattedValue;
+      const newOpvalue =
+        prevValue === null || prevValue === ""
+          ? formattedValue
+          : prevValue + formattedValue;
+
+      // Update display with formatted value
+      setDisplayValue(formatExpression(newOpvalue));
+      return newOpvalue;
     });
     setLastWasEquals(false);
   }
@@ -129,18 +251,17 @@ function Calculator() {
   function renderOperationDisplay() {
     const operators = ["%", "÷", "x", "-", "+"];
 
-    if (!opvalue) {
+    if (!displayValue) {
       return null;
     }
 
-    // Just render the opvalue as-is, but color the operators
-    // We'll use a character-by-character approach
+    // Render the formatted expression with colored operators
     return (
       <p
         style={{ color: "white", fontFamily: "Inter, sans-serif" }}
         className="operation-display"
       >
-        {opvalue.split("").map((char, index) => {
+        {displayValue.split("").map((char, index) => {
           const trimmedChar = char.trim();
           if (operators.includes(trimmedChar)) {
             return (
@@ -162,6 +283,7 @@ function Calculator() {
   function handleDelete() {
     setOpvalue((prevValue) => {
       if (!prevValue || prevValue.trim() === "") {
+        setDisplayValue("");
         return "";
       }
 
@@ -172,6 +294,8 @@ function Calculator() {
       const lastChar = prevValue.slice(-1);
       const lastThreeChars = prevValue.slice(-3);
 
+      let newOpvalue;
+
       // Check if we're deleting an operator with spaces
       if (prevValue.endsWith(" ")) {
         // Check if it's an operator with spaces (like " + ", " - ", etc.)
@@ -179,15 +303,19 @@ function Calculator() {
 
         if (operatorsWithSpaces.some((op) => lastThreeChars === op)) {
           // Remove the operator with spaces
-          return prevValue.slice(0, -3);
+          newOpvalue = prevValue.slice(0, -3);
         } else {
           // Just remove trailing space
-          return prevValue.trimEnd();
+          newOpvalue = prevValue.trimEnd();
         }
       } else {
         // Remove just the last character
-        return prevValue.slice(0, -1);
+        newOpvalue = prevValue.slice(0, -1);
       }
+
+      // Update display with formatted value
+      setDisplayValue(formatExpression(newOpvalue));
+      return newOpvalue;
     });
 
     // Clear the result when deleting (optional but recommended)
@@ -201,7 +329,11 @@ function Calculator() {
         // If we have a result from equals, use that
         if (lastWasEquals && result) {
           setLastWasEquals(false);
-          return "(-" + result + ")";
+          // Remove commas from result for calculation
+          const resultWithoutCommas = result.replace(/,/g, "");
+          const newOpvalue = "(-" + resultWithoutCommas + ")";
+          setDisplayValue(formatExpression(newOpvalue));
+          return newOpvalue;
         }
         return prevValue;
       }
@@ -225,20 +357,34 @@ function Calculator() {
       const beforeNum = trimmed.substring(0, i + 1);
       const lastNum = trimmed.substring(i + 1);
 
+      // Remove commas from the number for calculation
+      const lastNumWithoutCommas = lastNum.replace(/,/g, "");
+
+      let newOpvalue;
+
       // Check if the last number is already negative
-      if (lastNum.startsWith("(-") && lastNum.endsWith(")")) {
+      if (
+        lastNumWithoutCommas.startsWith("(-") &&
+        lastNumWithoutCommas.endsWith(")")
+      ) {
         // Remove the negative wrapper
-        const positiveNum = lastNum.substring(2, lastNum.length - 1);
-        return beforeNum + positiveNum;
+        const positiveNum = lastNumWithoutCommas.substring(
+          2,
+          lastNumWithoutCommas.length - 1
+        );
+        newOpvalue = beforeNum + positiveNum;
       } else {
         // Wrap the number in (- ... )
-        const newValue = beforeNum + "(-" + lastNum + ")";
+        newOpvalue = beforeNum + "(-" + lastNumWithoutCommas + ")";
         // Check if this would exceed 50 characters
-        if (newValue.length > 50) {
+        if (newOpvalue.length > 50) {
           return prevValue;
         }
-        return newValue;
       }
+
+      // Update display with formatted value
+      setDisplayValue(formatExpression(newOpvalue));
+      return newOpvalue;
     });
     setLastWasEquals(false);
   }
@@ -310,35 +456,6 @@ function Calculator() {
 
           {renderCalculator && (
             <div className="keyboarrd">
-              {/* <span
-              style={{
-                color: "rgb(57, 57, 57)",
-                marginBottom: "0px",
-                margin: "0",
-                padding: "0",
-              }}
-            >
-              _______________________________________________
-            </span>
-            <div className="operation-buttons-div">
-              <div className="history-button-div">
-                <button className="history-button">
-                  <i class="fa-solid fa-clock-rotate-left"></i>
-                </button>
-              </div>
-
-              <div className="calculator-button-div">
-                <button className="calculator-button">
-                  <i class="fa-solid fa-calculator"></i>
-                </button>
-              </div>
-
-              <div className="delete-btn-div">
-                <button className="delete-button" onClick={handleDelete}>
-                  <i className="fa-solid fa-delete-left"></i>
-                </button>
-              </div>
-            </div> */}
               <div className="button-row">
                 <button
                   className="op-buttons"
@@ -489,6 +606,55 @@ function Calculator() {
                   =
                 </button>
               </div>
+            </div>
+          )}
+
+          {!renderCalculator && (
+            <div className="history">
+              {history.length === 0 ? (
+                <p style={{ color: "gray", textAlign: "center" }}>
+                  No calculations yet
+                </p>
+              ) : (
+                <div className="history-list">
+                  {history.map((item) => (
+                    <div
+                      key={item.id}
+                      className="history-item"
+                      style={{
+                        // marginBottom: "15px",
+                        // paddingBottom: "10px",
+                        borderBottom: "1px solid rgb(57, 57, 57)",
+                      }}
+                    >
+                      <div className="history-list-items">
+                        <p
+                          style={{
+                            color: "white",
+                            // margin: "0 0 5px 0",
+                            fontSize: "20px",
+                          }}
+                        >
+                          {item.expression} ={" "}
+                          <span style={{ color: "greenyellow" }}>
+                            {item.result}
+                          </span>
+                        </p>
+                        {/* <p
+                          style={{
+                            color: "greenyellow",
+                            margin: "0",
+                            fontSize: "20px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          = {item.result}
+                        </p> */}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
