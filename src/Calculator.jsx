@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function Calculator() {
   const [opvalue, setOpvalue] = useState(""); // Store without commas
@@ -6,7 +6,14 @@ function Calculator() {
   const [result, setResult] = useState("");
   const [lastWasEquals, setLastWasEquals] = useState(false);
   const [renderCalculator, setRenderCalculator] = useState(true);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem("calculator_history");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("calculator_history", JSON.stringify(history));
+  }, [history]);
 
   // Function to format numbers with commas (Indian numbering system)
   function formatNumberWithCommas(numberStr) {
