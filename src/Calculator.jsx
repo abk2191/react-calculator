@@ -398,6 +398,17 @@ function Calculator() {
 
   return (
     <>
+      <div className="brand">
+        <h3
+          style={{
+            color: "whitesmoke",
+            fontSize: "14px",
+            fontFamily: "Inter, sans-serif",
+          }}
+        >
+          Aphelion Labs 🧪
+        </h3>
+      </div>
       <div className="calculator-container">
         <div className="display">
           <div className="expression-display" style={{ fontSize: "35px" }}>

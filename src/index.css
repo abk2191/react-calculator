@@ -152,6 +152,10 @@ body {
   background: rgba(128, 128, 128, 0.5);
 }
 
+.brand {
+  text-align: center;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
