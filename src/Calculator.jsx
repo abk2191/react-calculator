@@ -10,6 +10,9 @@ function Calculator() {
     const saved = localStorage.getItem("calculator_history");
     return saved ? JSON.parse(saved) : [];
   });
+  const [isHistoryButtonActive, setIsHistoryButtonActive] = useState(false);
+  const [isCalculatorButtonActive, setIsCalculatorButtonActive] =
+    useState(false);
 
   useEffect(() => {
     localStorage.setItem("calculator_history", JSON.stringify(history));
@@ -448,8 +451,16 @@ function Calculator() {
             <div className="operation-buttons-div">
               <div className="history-button-div">
                 <button
-                  className="history-button"
-                  onClick={() => setRenderCalculator(false)}
+                  className={`history-button ${
+                    isHistoryButtonActive
+                      ? "animate__animated animate__rubberBand"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setIsHistoryButtonActive(true);
+                    setRenderCalculator(false);
+                  }}
+                  onAnimationEnd={() => setIsHistoryButtonActive(false)}
                 >
                   <i class="fa-solid fa-clock-rotate-left"></i>
                 </button>
@@ -457,8 +468,16 @@ function Calculator() {
 
               <div className="calculator-button-div">
                 <button
-                  className="calculator-button"
-                  onClick={() => setRenderCalculator(true)}
+                  className={`calculator-button ${
+                    isCalculatorButtonActive
+                      ? "animate__animated animate__rubberBand"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setIsCalculatorButtonActive(true);
+                    setRenderCalculator(true);
+                  }}
+                  onAnimationEnd={() => setIsCalculatorButtonActive(false)}
                 >
                   <i class="fa-solid fa-calculator"></i>
                 </button>

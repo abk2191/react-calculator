@@ -114,6 +114,11 @@ body {
   cursor: pointer;
 }
 
+.history-button:active {
+  animation: animate__rubberBand; /* referring directly to the animation's @keyframe declaration */
+  animation-duration: 2s; /* don't forget to set a duration! */
+}
+
 .calculator-button {
   border: none;
   background: none;
