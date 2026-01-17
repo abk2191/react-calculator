@@ -406,7 +406,7 @@ function Calculator() {
             fontFamily: "Inter, sans-serif",
           }}
         >
-          Aphelion Labs 🧪
+          <i class="fa-solid fa-flask"></i> Aphelion Labs.
         </h3>
       </div>
       <div className="calculator-container">
