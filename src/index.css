@@ -127,7 +127,7 @@ body.light-theme .history p {
 }
 
 .container {
-  margin-top: 70px;
+  margin-top: 60px;
 }
 
 .button-row {
@@ -256,15 +256,15 @@ body.light-theme .history::-webkit-scrollbar-thumb {
 /* PWA-specific adjustments when app is installed as standalone */
 @media (display-mode: fullscreen) {
   .divider-span {
-    margin-top: 25px;
+    margin-top: 15px;
   }
 
   .operation-buttons-div {
-    margin-top: 25px;
+    margin-top: 15px;
   }
 
   .keyboarrd {
-    margin-top: 25px;
+    margin-top: 15px;
   }
 }
 
