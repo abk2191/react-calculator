@@ -1,421 +1,668 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+
+const OPERATORS = ["%", "÷", "x", "-", "+"];
+const OPERATOR_DISPLAY_MAP = {
+  "÷": "fa-divide",
+  x: "fa-xmark",
+  "-": "fa-minus",
+  "+": "fa-plus",
+};
 
 function Calculator() {
-  const [opvalue, setOpvalue] = useState(""); // Store without commas
-  const [displayValue, setDisplayValue] = useState(""); // Display with commas
+  const [expression, setExpression] = useState(""); // Store without commas
+  const [displayExpression, setDisplayExpression] = useState(""); // Display with commas
   const [result, setResult] = useState("");
-  const [lastWasEquals, setLastWasEquals] = useState(false);
-  const [renderCalculator, setRenderCalculator] = useState(true);
-  const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem("calculator_history");
-    return saved ? JSON.parse(saved) : [];
+  const [lastOperationWasEquals, setLastOperationWasEquals] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(true);
+  const [calculationHistory, setCalculationHistory] = useState(() => {
+    const savedHistory = localStorage.getItem("calculator_history");
+    return savedHistory ? JSON.parse(savedHistory) : [];
   });
-  const [isHistoryButtonActive, setIsHistoryButtonActive] = useState(false);
-  const [isCalculatorButtonActive, setIsCalculatorButtonActive] =
-    useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("calculator_theme");
+    return savedTheme ? JSON.parse(savedTheme) : true; // Default to dark theme
+  });
+
+  // Persist history and theme to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      "calculator_history",
+      JSON.stringify(calculationHistory),
+    );
+  }, [calculationHistory]);
 
   useEffect(() => {
-    localStorage.setItem("calculator_history", JSON.stringify(history));
-  }, [history]);
+    localStorage.setItem("calculator_theme", JSON.stringify(isDarkTheme));
+    // Update body class for theme
+    if (isDarkTheme) {
+      document.body.classList.add("dark-theme");
+      document.body.classList.remove("light-theme");
+    } else {
+      document.body.classList.add("light-theme");
+      document.body.classList.remove("dark-theme");
+    }
+  }, [isDarkTheme]);
 
-  // Function to format numbers with commas (Indian numbering system)
-  function formatNumberWithCommas(numberStr) {
-    if (!numberStr) return "";
+  /**
+   * Formats a number string with commas according to Indian numbering system
+   */
+  const formatNumberWithCommas = useCallback((numberString) => {
+    if (!numberString) return "";
 
-    // Remove any existing commas
-    const numStr = numberStr.replace(/,/g, "");
+    // Remove existing commas
+    const cleanNumberString = numberString.replace(/,/g, "");
 
-    // Split into integer and decimal parts
-    const parts = numStr.split(".");
-    let integerPart = parts[0];
-    const decimalPart = parts.length > 1 ? "." + parts[1] : "";
+    const [integerPart, decimalPart] = cleanNumberString.split(".");
+    let processedIntegerPart = integerPart;
+    const formattedDecimalPart = decimalPart ? `.${decimalPart}` : "";
 
     // Handle negative numbers
     let isNegative = false;
-    if (integerPart.startsWith("-")) {
+    if (processedIntegerPart.startsWith("-")) {
       isNegative = true;
-      integerPart = integerPart.substring(1);
+      processedIntegerPart = processedIntegerPart.substring(1);
     }
 
-    // Format integer part with commas (Indian numbering system)
-    let lastThree = integerPart.substring(integerPart.length - 3);
-    let otherNumbers = integerPart.substring(0, integerPart.length - 3);
+    // Indian numbering system: comma after last 3 digits, then every 2 digits
+    const lastThreeDigits = processedIntegerPart.substring(
+      processedIntegerPart.length - 3,
+    );
+    const remainingDigits = processedIntegerPart.substring(
+      0,
+      processedIntegerPart.length - 3,
+    );
 
-    if (otherNumbers !== "") {
-      lastThree = "," + lastThree;
+    let formattedResult = lastThreeDigits;
+    if (remainingDigits) {
+      formattedResult = `,${lastThreeDigits}`;
     }
 
-    let result = lastThree;
     let count = 0;
-
-    for (let i = otherNumbers.length - 1; i >= 0; i--) {
+    for (let i = remainingDigits.length - 1; i >= 0; i--) {
       count++;
-      result = otherNumbers.charAt(i) + result;
+      formattedResult = remainingDigits.charAt(i) + formattedResult;
       if (count === 2 && i !== 0) {
-        result = "," + result;
+        formattedResult = `,${formattedResult}`;
         count = 0;
       }
     }
 
-    // Add negative sign back if needed
     if (isNegative) {
-      result = "-" + result;
+      formattedResult = `-${formattedResult}`;
     }
 
-    return result + decimalPart;
-  }
+    return formattedResult + formattedDecimalPart;
+  }, []);
 
-  // Function to parse and format expression with commas
-  function formatExpression(expression) {
-    if (!expression) return "";
+  /**
+   * Formats an entire expression with commas for display
+   */
+  const formatExpressionForDisplay = useCallback(
+    (rawExpression) => {
+      if (!rawExpression) return "";
 
-    // Split the expression by operators (keeping the operators)
-    const operators = ["+", "-", "x", "÷", "%"];
-    let formattedExpression = "";
-    let currentNumber = "";
+      let formattedExpression = "";
+      let currentNumber = "";
 
-    for (let i = 0; i < expression.length; i++) {
-      const char = expression[i];
+      for (let i = 0; i < rawExpression.length; i++) {
+        const char = rawExpression[i];
 
-      // Check if character is part of a number (digit, decimal point, or minus sign at start of number)
-      if (
-        /[\d.]/.test(char) ||
-        (char === "-" && (i === 0 || /[+\-x÷%\s(]/.test(expression[i - 1])))
-      ) {
-        currentNumber += char;
-      } else {
-        // Format the accumulated number if exists
-        if (currentNumber) {
-          formattedExpression += formatNumberWithCommas(currentNumber);
-          currentNumber = "";
+        // Check if character is part of a number
+        const isPartOfNumber =
+          /[\d.]/.test(char) ||
+          (char === "-" &&
+            (i === 0 || /[+\-x÷%\s(]/.test(rawExpression[i - 1])));
+
+        if (isPartOfNumber) {
+          currentNumber += char;
+        } else {
+          if (currentNumber) {
+            formattedExpression += formatNumberWithCommas(currentNumber);
+            currentNumber = "";
+          }
+          formattedExpression += char;
         }
-
-        // Add the non-number character (operator, space, parenthesis, etc.)
-        formattedExpression += char;
       }
-    }
 
-    // Format any remaining number at the end
-    if (currentNumber) {
-      formattedExpression += formatNumberWithCommas(currentNumber);
-    }
+      if (currentNumber) {
+        formattedExpression += formatNumberWithCommas(currentNumber);
+      }
 
-    return formattedExpression;
-  }
+      return formattedExpression;
+    },
+    [formatNumberWithCommas],
+  );
 
-  // Function to add calculation to history
-  function addToHistory(expression, result) {
+  /**
+   * Adds a calculation to the history
+   */
+  const addToCalculationHistory = useCallback((expression, result) => {
     const historyItem = {
       id: Date.now(),
-      expression: expression,
-      result: result,
+      expression,
+      result,
     };
 
-    setHistory((prevHistory) => [historyItem, ...prevHistory]);
-  }
+    setCalculationHistory((prevHistory) => [historyItem, ...prevHistory]);
+  }, []);
 
-  function calculateExpression() {
-    setDisplayValue("");
-    setLastWasEquals(true);
+  /**
+   * Evaluates the current expression and updates result
+   */
+  const evaluateExpression = useCallback(() => {
+    setDisplayExpression("");
+    setLastOperationWasEquals(true);
+
     try {
-      if (opvalue.trim() === "") {
+      if (expression.trim() === "") {
         setResult("");
         return;
       }
 
-      // First remove spaces for calculation (commas are already not in opvalue)
-      let expression = opvalue
-        .replace(/\s+/g, "") // Remove all spaces
+      // Prepare expression for evaluation
+      const evalExpression = expression
+        .replace(/\s+/g, "")
         .replace(/x/g, "*")
         .replace(/÷/g, "/")
         .replace(/%/g, "/100");
 
-      // Use eval (with caution - okay for calculator app)
-      const calculatedResult = eval(expression);
+      const calculatedValue = eval(evalExpression);
 
-      // Format to maximum 5 decimal places
-      let resultStr;
-
-      if (Number.isInteger(calculatedResult)) {
-        resultStr = calculatedResult.toString();
+      // Format result with max 5 decimal places
+      let resultString;
+      if (Number.isInteger(calculatedValue)) {
+        resultString = calculatedValue.toString();
       } else {
-        // Round to 5 decimal places
-        const rounded = Math.round(calculatedResult * 100000) / 100000;
-        // Convert to string and remove trailing zeros
-        resultStr = parseFloat(rounded.toString()).toString();
+        const roundedValue = Math.round(calculatedValue * 100000) / 100000;
+        resultString = parseFloat(roundedValue.toString()).toString();
       }
 
-      // Format the result with commas
-      const formattedResult = formatNumberWithCommas(resultStr);
+      const formattedResult = formatNumberWithCommas(resultString);
       setResult(formattedResult);
-
-      // Add to history
-      addToHistory(displayValue, formattedResult);
+      addToCalculationHistory(displayExpression, formattedResult);
     } catch (error) {
       setResult("Error");
-      setLastWasEquals(false);
+      setLastOperationWasEquals(false);
     }
-  }
+  }, [
+    expression,
+    displayExpression,
+    formatNumberWithCommas,
+    addToCalculationHistory,
+  ]);
 
-  function displayOperations(value) {
-    setResult("");
-    if (value === "C") {
-      setOpvalue("");
-      setDisplayValue("");
+  /**
+   * Handles button clicks for numbers, operators, and special functions
+   */
+  const handleButtonClick = useCallback(
+    (value) => {
       setResult("");
-      setLastWasEquals(false);
-      return;
-    }
 
-    // Handle parentheses
-    if (value === "( )") {
-      setOpvalue((prevValue) => {
-        // Check if we've reached 50 characters
-        if (prevValue.length >= 50) {
-          return prevValue;
-        }
-
-        // If we just got a result, start fresh with the result
-        if (lastWasEquals && result) {
-          setLastWasEquals(false);
-          // Remove commas from result for new expression
-          const resultWithoutCommas = result.replace(/,/g, "");
-          // Update display
-          setDisplayValue(formatExpression(resultWithoutCommas + "("));
-          return resultWithoutCommas + "(";
-        }
-
-        // Count parentheses in the current expression
-        const openParens = (prevValue.match(/\(/g) || []).length;
-        const closeParens = (prevValue.match(/\)/g) || []).length;
-
-        let newOpvalue;
-        if (openParens <= closeParens) {
-          // Add opening parenthesis (we need more opens)
-          newOpvalue = prevValue + "(";
-        } else {
-          // Add closing parenthesis (we have more opens than closes)
-          newOpvalue = prevValue + ")";
-        }
-
-        // Update display with formatted value
-        setDisplayValue(formatExpression(newOpvalue));
-        return newOpvalue;
-      });
-      return;
-    }
-
-    // Check if the value is an operator that needs spaces
-    const operators = ["%", "÷", "x", "-", "+"];
-
-    // If we just pressed equals and have a result, start new expression with result
-    if (lastWasEquals && result && operators.includes(value)) {
-      // Remove commas from result for calculation
-      const resultWithoutCommas = result.replace(/,/g, "");
-      const newOpvalue = resultWithoutCommas + ` ${value} `;
-      setOpvalue(newOpvalue);
-      setDisplayValue(formatExpression(newOpvalue));
-      setLastWasEquals(false);
-      return;
-    }
-
-    // If we just pressed equals and user enters a number or dot, start fresh
-    if (
-      lastWasEquals &&
-      result &&
-      !operators.includes(value) &&
-      value !== "( )"
-    ) {
-      setOpvalue(value);
-      setDisplayValue(formatExpression(value));
-      setLastWasEquals(false);
-      return;
-    }
-
-    let formattedValue = value;
-
-    if (operators.includes(value)) {
-      formattedValue = ` ${value} `;
-    }
-
-    setOpvalue((prevValue) => {
-      // Check if adding this value would exceed 50 characters
-      const newValueLength = prevValue.length + formattedValue.length;
-      if (newValueLength > 50) {
-        return prevValue; // Don't add the new value
+      if (value === "C") {
+        setExpression("");
+        setDisplayExpression("");
+        setResult("");
+        setLastOperationWasEquals(false);
+        return;
       }
 
-      const newOpvalue =
-        prevValue === null || prevValue === ""
-          ? formattedValue
-          : prevValue + formattedValue;
+      // Handle parentheses insertion
+      if (value === "( )") {
+        setExpression((prevExpression) => {
+          if (prevExpression.length >= 50) return prevExpression;
 
-      // Update display with formatted value
-      setDisplayValue(formatExpression(newOpvalue));
-      return newOpvalue;
-    });
-    setLastWasEquals(false);
-  }
+          if (lastOperationWasEquals && result) {
+            setLastOperationWasEquals(false);
+            const resultWithoutCommas = result.replace(/,/g, "");
+            const newExpression = resultWithoutCommas + "(";
+            setDisplayExpression(formatExpressionForDisplay(newExpression));
+            return newExpression;
+          }
 
-  // Function to render the operation display with colored operators
-  function renderOperationDisplay() {
-    const operators = ["%", "÷", "x", "-", "+"];
+          const openParenthesesCount = (prevExpression.match(/\(/g) || [])
+            .length;
+          const closeParenthesesCount = (prevExpression.match(/\)/g) || [])
+            .length;
 
-    if (!displayValue) {
-      return null;
-    }
+          const newExpression =
+            openParenthesesCount <= closeParenthesesCount
+              ? prevExpression + "("
+              : prevExpression + ")";
 
-    // Render the formatted expression with colored operators
+          setDisplayExpression(formatExpressionForDisplay(newExpression));
+          return newExpression;
+        });
+        return;
+      }
+
+      // Handle operator insertion after equals
+      if (lastOperationWasEquals && result && OPERATORS.includes(value)) {
+        const resultWithoutCommas = result.replace(/,/g, "");
+        const newExpression = `${resultWithoutCommas} ${value} `;
+        setExpression(newExpression);
+        setDisplayExpression(formatExpressionForDisplay(newExpression));
+        setLastOperationWasEquals(false);
+        return;
+      }
+
+      // Handle number/dot insertion after equals
+      if (
+        lastOperationWasEquals &&
+        result &&
+        !OPERATORS.includes(value) &&
+        value !== "( )"
+      ) {
+        setExpression(value);
+        setDisplayExpression(formatExpressionForDisplay(value));
+        setLastOperationWasEquals(false);
+        return;
+      }
+
+      const formattedValue = OPERATORS.includes(value) ? ` ${value} ` : value;
+
+      setExpression((prevExpression) => {
+        const newExpressionLength =
+          prevExpression.length + formattedValue.length;
+        if (newExpressionLength > 50) return prevExpression;
+
+        const newExpression =
+          prevExpression === ""
+            ? formattedValue
+            : prevExpression + formattedValue;
+        setDisplayExpression(formatExpressionForDisplay(newExpression));
+        return newExpression;
+      });
+
+      setLastOperationWasEquals(false);
+    },
+    [lastOperationWasEquals, result, formatExpressionForDisplay],
+  );
+
+  /**
+   * Renders the operation display with colored operators
+   */
+  const renderOperationDisplay = useMemo(() => {
+    if (!displayExpression) return null;
+
     return (
       <p
-        style={{ color: "white", fontFamily: "Inter, sans-serif" }}
+        style={{
+          color: isDarkTheme ? "white" : "#1a1a1a",
+          fontFamily: "Inter, sans-serif",
+        }}
         className="operation-display"
       >
-        {displayValue.split("").map((char, index) => {
+        {displayExpression.split("").map((char, index) => {
           const trimmedChar = char.trim();
-          if (operators.includes(trimmedChar)) {
-            return (
-              <span key={index} style={{ color: "greenyellow" }}>
-                {char}
-              </span>
-            );
-          }
           return (
-            <span key={index} style={{ color: "white" }}>
+            <span
+              key={`${char}-${index}`}
+              style={{
+                color: OPERATORS.includes(trimmedChar)
+                  ? "greenyellow"
+                  : isDarkTheme
+                    ? "white"
+                    : "#1a1a1a",
+              }}
+            >
               {char}
             </span>
           );
         })}
       </p>
     );
-  }
+  }, [displayExpression, isDarkTheme]);
 
-  function handleDelete() {
-    setOpvalue((prevValue) => {
-      if (!prevValue || prevValue.trim() === "") {
-        setDisplayValue("");
+  /**
+   * Handles backspace/delete functionality
+   */
+  const handleDelete = useCallback(() => {
+    setExpression((prevExpression) => {
+      if (!prevExpression || prevExpression.trim() === "") {
+        setDisplayExpression("");
         return "";
       }
 
-      // Trim the value to handle trailing spaces
-      const trimmedValue = prevValue.trim();
-
-      // Check what we're deleting
-      const lastChar = prevValue.slice(-1);
-      const lastThreeChars = prevValue.slice(-3);
-
-      let newOpvalue;
-
-      // Check if we're deleting an operator with spaces
-      if (prevValue.endsWith(" ")) {
-        // Check if it's an operator with spaces (like " + ", " - ", etc.)
+      if (prevExpression.endsWith(" ")) {
         const operatorsWithSpaces = [" + ", " - ", " x ", " ÷ ", " % "];
+        const lastThreeChars = prevExpression.slice(-3);
 
-        if (operatorsWithSpaces.some((op) => lastThreeChars === op)) {
-          // Remove the operator with spaces
-          newOpvalue = prevValue.slice(0, -3);
+        if (operatorsWithSpaces.includes(lastThreeChars)) {
+          const newExpression = prevExpression.slice(0, -3);
+          setDisplayExpression(formatExpressionForDisplay(newExpression));
+          return newExpression;
         } else {
-          // Just remove trailing space
-          newOpvalue = prevValue.trimEnd();
+          const newExpression = prevExpression.trimEnd();
+          setDisplayExpression(formatExpressionForDisplay(newExpression));
+          return newExpression;
         }
       } else {
-        // Remove just the last character
-        newOpvalue = prevValue.slice(0, -1);
+        const newExpression = prevExpression.slice(0, -1);
+        setDisplayExpression(formatExpressionForDisplay(newExpression));
+        return newExpression;
       }
-
-      // Update display with formatted value
-      setDisplayValue(formatExpression(newOpvalue));
-      return newOpvalue;
     });
 
-    // Clear the result when deleting (optional but recommended)
     setResult("");
-    setLastWasEquals(false);
-  }
+    setLastOperationWasEquals(false);
+  }, [formatExpressionForDisplay]);
 
-  function handlePlusMinus() {
-    setOpvalue((prevValue) => {
-      if (!prevValue || prevValue.trim() === "") {
-        // If we have a result from equals, use that
-        if (lastWasEquals && result) {
-          setLastWasEquals(false);
-          // Remove commas from result for calculation
+  /**
+   * Toggles the sign of the last number in the expression
+   */
+  const handleSignToggle = useCallback(() => {
+    setExpression((prevExpression) => {
+      if (!prevExpression || prevExpression.trim() === "") {
+        if (lastOperationWasEquals && result) {
+          setLastOperationWasEquals(false);
           const resultWithoutCommas = result.replace(/,/g, "");
-          const newOpvalue = "(-" + resultWithoutCommas + ")";
-          setDisplayValue(formatExpression(newOpvalue));
-          return newOpvalue;
+          const newExpression = `(-${resultWithoutCommas})`;
+          setDisplayExpression(formatExpressionForDisplay(newExpression));
+          return newExpression;
         }
-        return prevValue;
+        return prevExpression;
       }
 
-      // Simple approach: Find where the last number starts
-      const trimmed = prevValue.trim();
-      const operators = ["+", "-", "x", "÷", "%", " "];
+      const trimmedExpression = prevExpression.trim();
+      let i = trimmedExpression.length - 1;
 
-      // Find the start of the last number by looking backwards
-      let i = trimmed.length - 1;
       while (
         i >= 0 &&
-        !operators.includes(trimmed[i]) &&
-        trimmed[i] !== "(" &&
-        trimmed[i] !== ")"
+        !["+", "-", "x", "÷", "%", " "].includes(trimmedExpression[i]) &&
+        trimmedExpression[i] !== "(" &&
+        trimmedExpression[i] !== ")"
       ) {
         i--;
       }
 
-      // i is now at the character before the last number starts
-      const beforeNum = trimmed.substring(0, i + 1);
-      const lastNum = trimmed.substring(i + 1);
+      const beforeNumber = trimmedExpression.substring(0, i + 1);
+      const lastNumber = trimmedExpression.substring(i + 1);
+      const lastNumberWithoutCommas = lastNumber.replace(/,/g, "");
 
-      // Remove commas from the number for calculation
-      const lastNumWithoutCommas = lastNum.replace(/,/g, "");
+      let newExpression;
 
-      let newOpvalue;
-
-      // Check if the last number is already negative
       if (
-        lastNumWithoutCommas.startsWith("(-") &&
-        lastNumWithoutCommas.endsWith(")")
+        lastNumberWithoutCommas.startsWith("(-") &&
+        lastNumberWithoutCommas.endsWith(")")
       ) {
-        // Remove the negative wrapper
-        const positiveNum = lastNumWithoutCommas.substring(
+        const positiveNumber = lastNumberWithoutCommas.substring(
           2,
-          lastNumWithoutCommas.length - 1
+          lastNumberWithoutCommas.length - 1,
         );
-        newOpvalue = beforeNum + positiveNum;
+        newExpression = beforeNumber + positiveNumber;
       } else {
-        // Wrap the number in (- ... )
-        newOpvalue = beforeNum + "(-" + lastNumWithoutCommas + ")";
-        // Check if this would exceed 50 characters
-        if (newOpvalue.length > 50) {
-          return prevValue;
-        }
+        newExpression = `${beforeNumber}(-${lastNumberWithoutCommas})`;
+        if (newExpression.length > 50) return prevExpression;
       }
 
-      // Update display with formatted value
-      setDisplayValue(formatExpression(newOpvalue));
-      return newOpvalue;
+      setDisplayExpression(formatExpressionForDisplay(newExpression));
+      return newExpression;
     });
-    setLastWasEquals(false);
-  }
+
+    setLastOperationWasEquals(false);
+  }, [lastOperationWasEquals, result, formatExpressionForDisplay]);
+
+  /**
+   * Renders the calculator keyboard buttons
+   */
+  const renderCalculatorButtons = useMemo(
+    () => (
+      <div className="keyboarrd">
+        {/* Row 1: C, ( ), %, ÷ */}
+        <div className="button-row">
+          {["C", "( )", "%", "÷"].map((button) => (
+            <button
+              key={button}
+              className="op-buttons"
+              style={{
+                backgroundColor:
+                  button === "÷"
+                    ? isDarkTheme
+                      ? "#1a1a1a"
+                      : "#e0e0e0"
+                    : isDarkTheme
+                      ? "rgb(57, 57, 57)"
+                      : "#d0d0d0",
+                color:
+                  button === "C"
+                    ? "#ff4444"
+                    : isDarkTheme
+                      ? "white"
+                      : "#1a1a1a",
+              }}
+              onClick={() => handleButtonClick(button)}
+            >
+              {button === "÷" ? (
+                <i className={`fa-solid ${OPERATOR_DISPLAY_MAP[button]}`} />
+              ) : (
+                button
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Row 2: 7, 8, 9, x */}
+        {[[7, 8, 9, "x"]].map((row, rowIndex) => (
+          <div key={`row-${rowIndex}`} className="button-row">
+            {row.map((value) => (
+              <button
+                key={value}
+                className="op-buttons"
+                style={{
+                  backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                }}
+                onClick={() => handleButtonClick(value.toString())}
+              >
+                {typeof value === "number" ? (
+                  value
+                ) : (
+                  <i className={`fa-solid ${OPERATOR_DISPLAY_MAP[value]}`} />
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+
+        {/* Row 3: 4, 5, 6, - */}
+        {[[4, 5, 6, "-"]].map((row, rowIndex) => (
+          <div key={`row-${rowIndex + 2}`} className="button-row">
+            {row.map((value) => (
+              <button
+                key={value}
+                className="op-buttons"
+                style={{
+                  backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                }}
+                onClick={() => handleButtonClick(value.toString())}
+              >
+                {typeof value === "number" ? (
+                  value
+                ) : (
+                  <i className={`fa-solid ${OPERATOR_DISPLAY_MAP[value]}`} />
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+
+        {/* Row 4: 1, 2, 3, + */}
+        {[[1, 2, 3, "+"]].map((row, rowIndex) => (
+          <div key={`row-${rowIndex + 3}`} className="button-row">
+            {row.map((value) => (
+              <button
+                key={value}
+                className="op-buttons"
+                style={{
+                  backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                }}
+                onClick={() => handleButtonClick(value.toString())}
+              >
+                {typeof value === "number" ? (
+                  value
+                ) : (
+                  <i className={`fa-solid ${OPERATOR_DISPLAY_MAP[value]}`} />
+                )}
+              </button>
+            ))}
+          </div>
+        ))}
+
+        {/* Row 5: +/-, 0, ., = */}
+        <div className="button-row">
+          <button
+            className="op-buttons"
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+              color: isDarkTheme ? "white" : "#1a1a1a",
+            }}
+            onClick={handleSignToggle}
+          >
+            +/-
+          </button>
+          <button
+            className="op-buttons"
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+              color: isDarkTheme ? "white" : "#1a1a1a",
+            }}
+            onClick={() => handleButtonClick("0")}
+          >
+            0
+          </button>
+          <button
+            className="op-buttons"
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+              color: isDarkTheme ? "white" : "#1a1a1a",
+            }}
+            onClick={() => handleButtonClick(".")}
+          >
+            .
+          </button>
+          <button
+            className="op-buttons"
+            style={{
+              backgroundColor: "green",
+              color: "white",
+            }}
+            onClick={evaluateExpression}
+          >
+            =
+          </button>
+        </div>
+      </div>
+    ),
+    [handleButtonClick, handleSignToggle, evaluateExpression, isDarkTheme],
+  );
+
+  /**
+   * Renders the calculation history
+   */
+  const renderHistory = useMemo(
+    () => (
+      <div className="history">
+        {calculationHistory.length === 0 ? (
+          <p
+            style={{
+              color: isDarkTheme ? "gray" : "#666",
+              textAlign: "center",
+            }}
+          >
+            No calculations yet
+          </p>
+        ) : (
+          <div className="history-list">
+            {calculationHistory.map((item) => (
+              <div
+                key={item.id}
+                className="history-item"
+                style={{
+                  borderBottom: isDarkTheme
+                    ? "1px solid rgb(57, 57, 57)"
+                    : "1px solid #ccc",
+                }}
+              >
+                <div className="history-list-items">
+                  <p
+                    style={{
+                      color: isDarkTheme ? "white" : "#1a1a1a",
+                      padding: "15px",
+                      fontFamily: "Inter, sans-serif",
+                      fontSize: "20px",
+                    }}
+                  >
+                    {item.expression} ={" "}
+                    <span style={{ color: "greenyellow" }}>{item.result}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ),
+    [calculationHistory, isDarkTheme],
+  );
 
   return (
     <>
-      <div className="brand">
-        <h3
-          style={{
-            color: "gold",
-            fontSize: "14px",
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          <i class="fa-solid fa-flask"></i> Aphelion Labs.
-        </h3>
+      <div className="brand-container">
+        <div className="brand">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "380px",
+              padding: "0 10px",
+            }}
+          >
+            <h3
+              style={{
+                color: isDarkTheme ? "whitesmoke" : "#1a1a1a",
+                fontSize: "14px",
+                fontFamily: "Inter, sans-serif",
+              }}
+            >
+              <i className="fa-solid fa-flask"></i> Aphelion Labs.
+            </h3>
+
+            <button
+              className="theme-toggle"
+              onClick={() => setIsDarkTheme(!isDarkTheme)}
+              aria-label={
+                isDarkTheme ? "Switch to light theme" : "Switch to dark theme"
+              }
+              style={{
+                background: "none",
+                border: "none",
+                color: isDarkTheme ? "greenyellow" : "#1a1a1a",
+                fontSize: "16px",
+                cursor: "pointer",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <i
+                className={`fa-solid ${isDarkTheme ? "fa-sun" : "fa-moon"}`}
+              ></i>
+              <span style={{ marginLeft: "5px", fontSize: "12px" }}>
+                {isDarkTheme ? "Light" : "Dark"}
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
+
       <div className="calculator-container">
+        {/* Display Section */}
         <div className="display">
           <div className="expression-display" style={{ fontSize: "35px" }}>
-            {renderOperationDisplay()}
+            {renderOperationDisplay}
           </div>
           <div className="result">
             <p
@@ -434,11 +681,12 @@ function Calculator() {
           </div>
         </div>
 
+        {/* Calculator Body */}
         <div className="container">
           <div className="divider-span">
             <span
               style={{
-                color: "rgb(57, 57, 57)",
+                color: isDarkTheme ? "rgb(57, 57, 57)" : "#ccc",
                 marginBottom: "0px",
                 margin: "0",
                 padding: "0",
@@ -447,255 +695,53 @@ function Calculator() {
               _______________________________________________
             </span>
           </div>
+
+          {/* Toolbar */}
           <div className="container-two">
             <div className="operation-buttons-div">
               <div className="history-button-div">
                 <button
-                  className={`history-button ${
-                    isHistoryButtonActive
-                      ? "animate__animated animate__rubberBand"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setIsHistoryButtonActive(true);
-                    setRenderCalculator(false);
+                  className="history-button"
+                  onClick={() => setShowCalculator(false)}
+                  aria-label="View history"
+                  style={{
+                    color: isDarkTheme ? "greenyellow" : "#1a1a1a",
                   }}
-                  onAnimationEnd={() => setIsHistoryButtonActive(false)}
                 >
-                  <i class="fa-solid fa-clock-rotate-left"></i>
+                  <i className="fa-solid fa-clock-rotate-left"></i>
                 </button>
               </div>
 
               <div className="calculator-button-div">
                 <button
-                  className={`calculator-button ${
-                    isCalculatorButtonActive
-                      ? "animate__animated animate__rubberBand"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setIsCalculatorButtonActive(true);
-                    setRenderCalculator(true);
+                  className="calculator-button"
+                  onClick={() => setShowCalculator(true)}
+                  aria-label="Show calculator"
+                  style={{
+                    color: isDarkTheme ? "greenyellow" : "#1a1a1a",
                   }}
-                  onAnimationEnd={() => setIsCalculatorButtonActive(false)}
                 >
-                  <i class="fa-solid fa-calculator"></i>
+                  <i className="fa-solid fa-calculator"></i>
                 </button>
               </div>
 
               <div className="delete-btn-div">
-                <button className="delete-button" onClick={handleDelete}>
+                <button
+                  className="delete-button"
+                  onClick={handleDelete}
+                  aria-label="Delete last character"
+                  style={{
+                    color: isDarkTheme ? "gold" : "#1a1a1a",
+                  }}
+                >
                   <i className="fa-solid fa-delete-left"></i>
                 </button>
               </div>
             </div>
           </div>
 
-          {renderCalculator && (
-            <div className="keyboarrd">
-              <div className="button-row">
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-                  onClick={() => displayOperations("C")}
-                >
-                  C
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-                  onClick={() => displayOperations("( )")}
-                >
-                  ( )
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "rgb(57, 57, 57)", color: "white" }}
-                  onClick={() => displayOperations("%")}
-                >
-                  %
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("÷")}
-                >
-                  <i className="fa-solid fa-divide"></i>
-                </button>
-              </div>
-              <div className="button-row">
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("7")}
-                >
-                  7
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("8")}
-                >
-                  8
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("9")}
-                >
-                  9
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("x")}
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div className="button-row">
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("4")}
-                >
-                  4
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("5")}
-                >
-                  5
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("6")}
-                >
-                  6
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("-")}
-                >
-                  <i className="fa-solid fa-minus"></i>
-                </button>
-              </div>
-              <div className="button-row">
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("1")}
-                >
-                  1
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("2")}
-                >
-                  2
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("3")}
-                >
-                  3
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("+")}
-                >
-                  <i className="fa-solid fa-plus"></i>
-                </button>
-              </div>
-              <div className="button-row">
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={handlePlusMinus}
-                >
-                  +/-
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations("0")}
-                >
-                  0
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "#1a1a1a", color: "white" }}
-                  onClick={() => displayOperations(".")}
-                >
-                  .
-                </button>
-                <button
-                  className="op-buttons"
-                  style={{ backgroundColor: "green", color: "white" }}
-                  onClick={calculateExpression}
-                >
-                  =
-                </button>
-              </div>
-            </div>
-          )}
-
-          {!renderCalculator && (
-            <div className="history">
-              {history.length === 0 ? (
-                <p style={{ color: "gray", textAlign: "center" }}>
-                  No calculations yet
-                </p>
-              ) : (
-                <div className="history-list">
-                  {history.map((item) => (
-                    <div
-                      key={item.id}
-                      className="history-item"
-                      style={{
-                        // marginBottom: "15px",
-                        // paddingBottom: "10px",
-                        borderBottom: "1px solid rgb(57, 57, 57)",
-                      }}
-                    >
-                      <div className="history-list-items">
-                        <p
-                          style={{
-                            color: "white",
-                            // margin: "0 0 5px 0",
-                            padding: "15px",
-                            fontFamily: "Inter, sans-serif",
-                            fontSize: "20px",
-                          }}
-                        >
-                          {item.expression} ={" "}
-                          <span style={{ color: "greenyellow" }}>
-                            {item.result}
-                          </span>
-                        </p>
-                        {/* <p
-                          style={{
-                            color: "greenyellow",
-                            margin: "0",
-                            fontSize: "20px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          = {item.result}
-                        </p> */}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Calculator or History */}
+          {showCalculator ? renderCalculatorButtons : renderHistory}
         </div>
       </div>
     </>
