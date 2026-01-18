@@ -299,7 +299,9 @@ function Calculator() {
               key={`${char}-${index}`}
               style={{
                 color: OPERATORS.includes(trimmedChar)
-                  ? "greenyellow"
+                  ? isDarkTheme
+                    ? "greenyellow"
+                    : "gold"
                   : isDarkTheme
                     ? "white"
                     : "#1a1a1a",
@@ -595,7 +597,11 @@ function Calculator() {
                     }}
                   >
                     {item.expression} ={" "}
-                    <span style={{ color: "greenyellow" }}>{item.result}</span>
+                    <span
+                      style={{ color: isDarkTheme ? "greenyellow" : "gold" }}
+                    >
+                      {item.result}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -669,7 +675,7 @@ function Calculator() {
               key={result}
               className="result-text animate__animated animate__zoomIn"
               style={{
-                color: "greenyellow",
+                color: isDarkTheme ? "greenyellow" : "gold",
                 fontSize: "60px",
                 fontWeight: "bold",
                 fontFamily: "Inter, sans-serif",
