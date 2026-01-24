@@ -633,7 +633,7 @@ function Calculator() {
                 fontFamily: "Inter, sans-serif",
               }}
             >
-              <i className="fa-solid fa-flask"></i> Aphelion Labs.
+              <i className="fa-solid fa-flask"></i> iINTUIT Labs.
             </h3>
 
             <button
