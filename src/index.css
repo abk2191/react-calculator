@@ -206,6 +206,58 @@ body {
   width: 80%;
 }
 
+.month-select {
+  width: 100px;
+  background-color: #1a1a1a;
+  color: white;
+  height: 35px;
+}
+
+.date-select {
+  width: 100px;
+  background-color: #1a1a1a;
+  color: white;
+  height: 35px;
+}
+
+.year-select {
+  width: 100px;
+  background-color: #1a1a1a;
+  color: white;
+  outline: none;
+  border: 1px solid gray;
+  height: 35px;
+}
+
+.date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.calculate-button {
+  width: 250px;
+  height: 40px;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+}
+
+.age-result {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  color: white;
+}
+
+.calculate-button-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 35px;
+}
+
 .mode-button.dark-theme {
   background-color: #1a1a1a;
 }

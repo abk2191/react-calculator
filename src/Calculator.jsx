@@ -9,6 +9,13 @@ const OPERATOR_DISPLAY_MAP = {
 };
 
 function Calculator() {
+  const [dob, setDob] = useState({ month: "Jan", day: 1, year: 2000 });
+  const [selectedDate, setSelectedDate] = useState({
+    month: "Jan",
+    day: 1,
+    year: new Date().getFullYear(),
+  });
+  const [ageResult, setAgeResult] = useState("");
   const [isArithmatic, setIsArithMatic] = useState(true);
   const [isAgeCalc, setIsAgeCalc] = useState(false);
   const [modeactive, setModeactive] = useState(false);
@@ -28,6 +35,89 @@ function Calculator() {
 
   function toggleModeMenu() {
     setModeactive((prev) => !prev);
+  }
+
+  function calculateAge() {
+    // Helper function to convert month name to number (0-11)
+    const getMonthNumber = (monthName) => {
+      const months = {
+        Jan: 0,
+        Feb: 1,
+        Mar: 2,
+        Apr: 3,
+        May: 4,
+        Jun: 5,
+        Jul: 6,
+        Aug: 7,
+        Sep: 8,
+        Oct: 9,
+        Nov: 10,
+        Dec: 11,
+      };
+      return months[monthName];
+    };
+
+    // Create date objects
+    const birthDate = new Date(dob.year, getMonthNumber(dob.month), dob.day);
+
+    const targetDate = new Date(
+      selectedDate.year,
+      getMonthNumber(selectedDate.month),
+      selectedDate.day,
+    );
+
+    // Validate dates
+    if (isNaN(birthDate.getTime()) || isNaN(targetDate.getTime())) {
+      setAgeResult("Please enter valid dates");
+      return;
+    }
+
+    if (birthDate > targetDate) {
+      setAgeResult("Date of birth cannot be after the selected date");
+      return;
+    }
+
+    // Calculate age difference
+    let years = targetDate.getFullYear() - birthDate.getFullYear();
+    let months = targetDate.getMonth() - birthDate.getMonth();
+    let days = targetDate.getDate() - birthDate.getDate();
+
+    // Adjust for negative days
+    if (days < 0) {
+      months--;
+      // Get days in previous month
+      const lastMonth = new Date(
+        targetDate.getFullYear(),
+        targetDate.getMonth(),
+        0,
+      );
+      days += lastMonth.getDate();
+    }
+
+    // Adjust for negative months
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    // Calculate total days difference for weeks
+    const timeDiff = targetDate - birthDate;
+    const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const weeks = Math.floor(totalDays / 7);
+    const remainingDays = totalDays % 7;
+
+    // Calculate total hours, minutes, seconds
+    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+    const minutes = Math.floor(timeDiff / (1000 * 60));
+    const seconds = Math.floor(timeDiff / 1000);
+
+    // Format the result
+    const result =
+      `${years} years, ${months} months, ${days} days\n` +
+      `(${totalDays} days, ${weeks} weeks, ${remainingDays} days)\n` +
+      `(${hours} hours, ${minutes} minutes, ${seconds} seconds)`;
+
+    setAgeResult(result);
   }
 
   // Persist history and theme to localStorage
@@ -793,9 +883,113 @@ function Calculator() {
           <div className="age-calculator">
             <div className="age-calc-cont">
               <h3 style={{ color: "white" }}>ENTER DATE OF BIRTH</h3>
-              <h3 style={{ color: "white" }}>
-                SELECT A DATE (CURRENT DATE IS DEFAULT)
-              </h3>
+              <div className="date-selector">
+                <select
+                  className="month-select"
+                  value={dob.month}
+                  onChange={(e) => setDob({ ...dob, month: e.target.value })}
+                >
+                  <option>Jan</option>
+                  <option>Feb</option>
+                  <option>Mar</option>
+                  <option>Apr</option>
+                  <option>May</option>
+                  <option>Jun</option>
+                  <option>Jul</option>
+                  <option>Aug</option>
+                  <option>Sep</option>
+                  <option>Oct</option>
+                  <option>Nov</option>
+                  <option>Dec</option>
+                </select>
+
+                <select
+                  className="date-select"
+                  value={dob.day}
+                  onChange={(e) =>
+                    setDob({ ...dob, day: parseInt(e.target.value) })
+                  }
+                >
+                  {[...Array(31)].map((_, i) => (
+                    <option key={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  placeholder="Enter Year"
+                  className="year-select"
+                  value={dob.year}
+                  onChange={(e) =>
+                    setDob({ ...dob, year: parseInt(e.target.value) || "" })
+                  }
+                />
+              </div>
+              <h3 style={{ color: "white" }}>SELECT A DATE</h3>
+
+              <div className="date-selector">
+                <select
+                  className="month-select"
+                  value={selectedDate.month}
+                  onChange={(e) =>
+                    setSelectedDate({ ...selectedDate, month: e.target.value })
+                  }
+                >
+                  <option>Jan</option>
+                  <option>Feb</option>
+                  <option>Mar</option>
+                  <option>Apr</option>
+                  <option>May</option>
+                  <option>Jun</option>
+                  <option>Jul</option>
+                  <option>Aug</option>
+                  <option>Sep</option>
+                  <option>Oct</option>
+                  <option>Nov</option>
+                  <option>Dec</option>
+                </select>
+
+                <select
+                  className="date-select"
+                  value={selectedDate.day}
+                  onChange={(e) =>
+                    setSelectedDate({
+                      ...selectedDate,
+                      day: parseInt(e.target.value),
+                    })
+                  }
+                >
+                  {[...Array(31)].map((_, i) => (
+                    <option key={i + 1}>{i + 1}</option>
+                  ))}
+                </select>
+
+                <input
+                  type="number"
+                  placeholder="Enter Year"
+                  className="year-select"
+                  value={selectedDate.year}
+                  onChange={(e) =>
+                    setSelectedDate({
+                      ...selectedDate,
+                      year: parseInt(e.target.value) || "",
+                    })
+                  }
+                />
+              </div>
+
+              <div className="calculate-button-div">
+                <button
+                  className="calculate-button"
+                  onClick={() => calculateAge()}
+                >
+                  CALCULATE
+                </button>
+              </div>
+
+              <div className="show-age">
+                <p className="age-result">YOU ARE: {ageResult} OLD.</p>
+              </div>
             </div>
           </div>
         )}
