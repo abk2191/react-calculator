@@ -101,9 +101,9 @@ function Calculator() {
     const seconds = Math.floor(timeDiff / 1000);
 
     const result =
-      `YOU ARE: ${years} years, ${months} months, ${days} days\n` +
-      `| ${totalDays} days, ${weeks} weeks, ${remainingDays} days\n` +
-      `| ${hours} hours, ${minutes} minutes, ${seconds} seconds | Old.`;
+      `YOU ARE: (${years} years, ${months} months, ${days} days)\n` +
+      `| (${totalDays} days, ${weeks} weeks, ${remainingDays} days)` +
+      ` | (${hours} hours, ${minutes} minutes, ${seconds} seconds) | Old.`;
 
     setAgeResult(result);
   }
