@@ -19,8 +19,8 @@ function Calculator() {
   const [isArithmatic, setIsArithMatic] = useState(true);
   const [isAgeCalc, setIsAgeCalc] = useState(false);
   const [modeactive, setModeactive] = useState(false);
-  const [expression, setExpression] = useState(""); // Store without commas
-  const [displayExpression, setDisplayExpression] = useState(""); // Display with commas
+  const [expression, setExpression] = useState("");
+  const [displayExpression, setDisplayExpression] = useState("");
   const [result, setResult] = useState("");
   const [lastOperationWasEquals, setLastOperationWasEquals] = useState(false);
   const [showCalculator, setShowCalculator] = useState(true);
@@ -30,7 +30,7 @@ function Calculator() {
   });
   const [isDarkTheme, setIsDarkTheme] = useState(() => {
     const savedTheme = localStorage.getItem("calculator_theme");
-    return savedTheme ? JSON.parse(savedTheme) : true; // Default to dark theme
+    return savedTheme ? JSON.parse(savedTheme) : true;
   });
 
   function toggleModeMenu() {
@@ -38,7 +38,6 @@ function Calculator() {
   }
 
   function calculateAge() {
-    // Helper function to convert month name to number (0-11)
     const getMonthNumber = (monthName) => {
       const months = {
         Jan: 0,
@@ -57,16 +56,13 @@ function Calculator() {
       return months[monthName];
     };
 
-    // Create date objects
     const birthDate = new Date(dob.year, getMonthNumber(dob.month), dob.day);
-
     const targetDate = new Date(
       selectedDate.year,
       getMonthNumber(selectedDate.month),
       selectedDate.day,
     );
 
-    // Validate dates
     if (isNaN(birthDate.getTime()) || isNaN(targetDate.getTime())) {
       setAgeResult("Please enter valid dates");
       return;
@@ -77,15 +73,12 @@ function Calculator() {
       return;
     }
 
-    // Calculate age difference
     let years = targetDate.getFullYear() - birthDate.getFullYear();
     let months = targetDate.getMonth() - birthDate.getMonth();
     let days = targetDate.getDate() - birthDate.getDate();
 
-    // Adjust for negative days
     if (days < 0) {
       months--;
-      // Get days in previous month
       const lastMonth = new Date(
         targetDate.getFullYear(),
         targetDate.getMonth(),
@@ -94,24 +87,19 @@ function Calculator() {
       days += lastMonth.getDate();
     }
 
-    // Adjust for negative months
     if (months < 0) {
       years--;
       months += 12;
     }
 
-    // Calculate total days difference for weeks
     const timeDiff = targetDate - birthDate;
     const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
     const weeks = Math.floor(totalDays / 7);
     const remainingDays = totalDays % 7;
-
-    // Calculate total hours, minutes, seconds
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const minutes = Math.floor(timeDiff / (1000 * 60));
     const seconds = Math.floor(timeDiff / 1000);
 
-    // Format the result
     const result =
       `YOU ARE: ${years} years, ${months} months, ${days} days\n` +
       `| ${totalDays} days, ${weeks} weeks, ${remainingDays} days\n` +
@@ -120,7 +108,6 @@ function Calculator() {
     setAgeResult(result);
   }
 
-  // Persist history and theme to localStorage
   useEffect(() => {
     localStorage.setItem(
       "calculator_history",
@@ -130,7 +117,6 @@ function Calculator() {
 
   useEffect(() => {
     localStorage.setItem("calculator_theme", JSON.stringify(isDarkTheme));
-    // Update body class for theme
     if (isDarkTheme) {
       document.body.classList.add("dark-theme");
       document.body.classList.remove("light-theme");
@@ -140,27 +126,17 @@ function Calculator() {
     }
   }, [isDarkTheme]);
 
-  /**
-   * Formats a number string with commas according to Indian numbering system
-   */
   const formatNumberWithCommas = useCallback((numberString) => {
     if (!numberString) return "";
-
-    // Remove existing commas
     const cleanNumberString = numberString.replace(/,/g, "");
-
     const [integerPart, decimalPart] = cleanNumberString.split(".");
     let processedIntegerPart = integerPart;
     const formattedDecimalPart = decimalPart ? `.${decimalPart}` : "";
-
-    // Handle negative numbers
     let isNegative = false;
     if (processedIntegerPart.startsWith("-")) {
       isNegative = true;
       processedIntegerPart = processedIntegerPart.substring(1);
     }
-
-    // Indian numbering system: comma after last 3 digits, then every 2 digits
     const lastThreeDigits = processedIntegerPart.substring(
       processedIntegerPart.length - 3,
     );
@@ -168,12 +144,10 @@ function Calculator() {
       0,
       processedIntegerPart.length - 3,
     );
-
     let formattedResult = lastThreeDigits;
     if (remainingDigits) {
       formattedResult = `,${lastThreeDigits}`;
     }
-
     let count = 0;
     for (let i = remainingDigits.length - 1; i >= 0; i--) {
       count++;
@@ -183,33 +157,23 @@ function Calculator() {
         count = 0;
       }
     }
-
     if (isNegative) {
       formattedResult = `-${formattedResult}`;
     }
-
     return formattedResult + formattedDecimalPart;
   }, []);
 
-  /**
-   * Formats an entire expression with commas for display
-   */
   const formatExpressionForDisplay = useCallback(
     (rawExpression) => {
       if (!rawExpression) return "";
-
       let formattedExpression = "";
       let currentNumber = "";
-
       for (let i = 0; i < rawExpression.length; i++) {
         const char = rawExpression[i];
-
-        // Check if character is part of a number
         const isPartOfNumber =
           /[\d.]/.test(char) ||
           (char === "-" &&
             (i === 0 || /[+\-x÷%\s(]/.test(rawExpression[i - 1])));
-
         if (isPartOfNumber) {
           currentNumber += char;
         } else {
@@ -220,52 +184,37 @@ function Calculator() {
           formattedExpression += char;
         }
       }
-
       if (currentNumber) {
         formattedExpression += formatNumberWithCommas(currentNumber);
       }
-
       return formattedExpression;
     },
     [formatNumberWithCommas],
   );
 
-  /**
-   * Adds a calculation to the history
-   */
   const addToCalculationHistory = useCallback((expression, result) => {
     const historyItem = {
       id: Date.now(),
       expression,
       result,
     };
-
     setCalculationHistory((prevHistory) => [historyItem, ...prevHistory]);
   }, []);
 
-  /**
-   * Evaluates the current expression and updates result
-   */
   const evaluateExpression = useCallback(() => {
     setDisplayExpression("");
     setLastOperationWasEquals(true);
-
     try {
       if (expression.trim() === "") {
         setResult("");
         return;
       }
-
-      // Prepare expression for evaluation
       const evalExpression = expression
         .replace(/\s+/g, "")
         .replace(/x/g, "*")
         .replace(/÷/g, "/")
         .replace(/%/g, "/100");
-
       const calculatedValue = eval(evalExpression);
-
-      // Format result with max 5 decimal places
       let resultString;
       if (Number.isInteger(calculatedValue)) {
         resultString = calculatedValue.toString();
@@ -273,7 +222,6 @@ function Calculator() {
         const roundedValue = Math.round(calculatedValue * 100000) / 100000;
         resultString = parseFloat(roundedValue.toString()).toString();
       }
-
       const formattedResult = formatNumberWithCommas(resultString);
       setResult(formattedResult);
       addToCalculationHistory(displayExpression, formattedResult);
@@ -288,13 +236,9 @@ function Calculator() {
     addToCalculationHistory,
   ]);
 
-  /**
-   * Handles button clicks for numbers, operators, and special functions
-   */
   const handleButtonClick = useCallback(
     (value) => {
       setResult("");
-
       if (value === "C") {
         setExpression("");
         setDisplayExpression("");
@@ -302,12 +246,9 @@ function Calculator() {
         setLastOperationWasEquals(false);
         return;
       }
-
-      // Handle parentheses insertion
       if (value === "( )") {
         setExpression((prevExpression) => {
           if (prevExpression.length >= 50) return prevExpression;
-
           if (lastOperationWasEquals && result) {
             setLastOperationWasEquals(false);
             const resultWithoutCommas = result.replace(/,/g, "");
@@ -315,24 +256,19 @@ function Calculator() {
             setDisplayExpression(formatExpressionForDisplay(newExpression));
             return newExpression;
           }
-
           const openParenthesesCount = (prevExpression.match(/\(/g) || [])
             .length;
           const closeParenthesesCount = (prevExpression.match(/\)/g) || [])
             .length;
-
           const newExpression =
             openParenthesesCount <= closeParenthesesCount
               ? prevExpression + "("
               : prevExpression + ")";
-
           setDisplayExpression(formatExpressionForDisplay(newExpression));
           return newExpression;
         });
         return;
       }
-
-      // Handle operator insertion after equals
       if (lastOperationWasEquals && result && OPERATORS.includes(value)) {
         const resultWithoutCommas = result.replace(/,/g, "");
         const newExpression = `${resultWithoutCommas} ${value} `;
@@ -341,8 +277,6 @@ function Calculator() {
         setLastOperationWasEquals(false);
         return;
       }
-
-      // Handle number/dot insertion after equals
       if (
         lastOperationWasEquals &&
         result &&
@@ -354,14 +288,11 @@ function Calculator() {
         setLastOperationWasEquals(false);
         return;
       }
-
       const formattedValue = OPERATORS.includes(value) ? ` ${value} ` : value;
-
       setExpression((prevExpression) => {
         const newExpressionLength =
           prevExpression.length + formattedValue.length;
         if (newExpressionLength > 50) return prevExpression;
-
         const newExpression =
           prevExpression === ""
             ? formattedValue
@@ -369,18 +300,13 @@ function Calculator() {
         setDisplayExpression(formatExpressionForDisplay(newExpression));
         return newExpression;
       });
-
       setLastOperationWasEquals(false);
     },
     [lastOperationWasEquals, result, formatExpressionForDisplay],
   );
 
-  /**
-   * Renders the operation display with colored operators
-   */
   const renderOperationDisplay = useMemo(() => {
     if (!displayExpression) return null;
-
     return (
       <p
         style={{
@@ -412,20 +338,15 @@ function Calculator() {
     );
   }, [displayExpression, isDarkTheme]);
 
-  /**
-   * Handles backspace/delete functionality
-   */
   const handleDelete = useCallback(() => {
     setExpression((prevExpression) => {
       if (!prevExpression || prevExpression.trim() === "") {
         setDisplayExpression("");
         return "";
       }
-
       if (prevExpression.endsWith(" ")) {
         const operatorsWithSpaces = [" + ", " - ", " x ", " ÷ ", " % "];
         const lastThreeChars = prevExpression.slice(-3);
-
         if (operatorsWithSpaces.includes(lastThreeChars)) {
           const newExpression = prevExpression.slice(0, -3);
           setDisplayExpression(formatExpressionForDisplay(newExpression));
@@ -441,14 +362,10 @@ function Calculator() {
         return newExpression;
       }
     });
-
     setResult("");
     setLastOperationWasEquals(false);
   }, [formatExpressionForDisplay]);
 
-  /**
-   * Toggles the sign of the last number in the expression
-   */
   const handleSignToggle = useCallback(() => {
     setExpression((prevExpression) => {
       if (!prevExpression || prevExpression.trim() === "") {
@@ -461,10 +378,8 @@ function Calculator() {
         }
         return prevExpression;
       }
-
       const trimmedExpression = prevExpression.trim();
       let i = trimmedExpression.length - 1;
-
       while (
         i >= 0 &&
         !["+", "-", "x", "÷", "%", " "].includes(trimmedExpression[i]) &&
@@ -473,13 +388,10 @@ function Calculator() {
       ) {
         i--;
       }
-
       const beforeNumber = trimmedExpression.substring(0, i + 1);
       const lastNumber = trimmedExpression.substring(i + 1);
       const lastNumberWithoutCommas = lastNumber.replace(/,/g, "");
-
       let newExpression;
-
       if (
         lastNumberWithoutCommas.startsWith("(-") &&
         lastNumberWithoutCommas.endsWith(")")
@@ -493,21 +405,15 @@ function Calculator() {
         newExpression = `${beforeNumber}(-${lastNumberWithoutCommas})`;
         if (newExpression.length > 50) return prevExpression;
       }
-
       setDisplayExpression(formatExpressionForDisplay(newExpression));
       return newExpression;
     });
-
     setLastOperationWasEquals(false);
   }, [lastOperationWasEquals, result, formatExpressionForDisplay]);
 
-  /**
-   * Renders the calculator keyboard buttons
-   */
   const renderCalculatorButtons = useMemo(
     () => (
       <div className="keyboarrd">
-        {/* Row 1: C, ( ), %, ÷ */}
         <div className="button-row">
           {["C", "( )", "%", "÷"].map((button) => (
             <button
@@ -539,8 +445,6 @@ function Calculator() {
             </button>
           ))}
         </div>
-
-        {/* Row 2: 7, 8, 9, x */}
         {[[7, 8, 9, "x"]].map((row, rowIndex) => (
           <div key={`row-${rowIndex}`} className="button-row">
             {row.map((value) => (
@@ -562,8 +466,6 @@ function Calculator() {
             ))}
           </div>
         ))}
-
-        {/* Row 3: 4, 5, 6, - */}
         {[[4, 5, 6, "-"]].map((row, rowIndex) => (
           <div key={`row-${rowIndex + 2}`} className="button-row">
             {row.map((value) => (
@@ -585,8 +487,6 @@ function Calculator() {
             ))}
           </div>
         ))}
-
-        {/* Row 4: 1, 2, 3, + */}
         {[[1, 2, 3, "+"]].map((row, rowIndex) => (
           <div key={`row-${rowIndex + 3}`} className="button-row">
             {row.map((value) => (
@@ -608,8 +508,6 @@ function Calculator() {
             ))}
           </div>
         ))}
-
-        {/* Row 5: +/-, 0, ., = */}
         <div className="button-row">
           <button
             className="op-buttons"
@@ -657,9 +555,6 @@ function Calculator() {
     [handleButtonClick, handleSignToggle, evaluateExpression, isDarkTheme],
   );
 
-  /**
-   * Renders the calculation history
-   */
   const renderHistory = useMemo(
     () => (
       <div className="history">
@@ -733,7 +628,15 @@ function Calculator() {
               <i className="fa-solid fa-flask"></i> iINTUIT Labs.
             </h3>
 
-            <button className="mode-button" onClick={() => toggleModeMenu()}>
+            <button
+              className={`mode-button ${isDarkTheme ? "dark-theme" : "light-theme"}`}
+              onClick={() => toggleModeMenu()}
+              style={{
+                backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                color: isDarkTheme ? "white" : "#1a1a1a",
+                border: isDarkTheme ? "2px solid gray" : "2px solid #999",
+              }}
+            >
               Mode
             </button>
 
@@ -765,34 +668,89 @@ function Calculator() {
         </div>
 
         {modeactive && (
-          <div className="mode-menu">
+          <div
+            className="mode-menu"
+            style={{
+              color: isDarkTheme ? "white" : "#1a1a1a",
+              border: isDarkTheme ? "1px solid #424242" : "1px solid #ccc",
+              backgroundColor: isDarkTheme ? "black" : "white",
+              boxShadow: isDarkTheme ? "none" : "0 2px 10px rgba(0,0,0,0.1)",
+            }}
+          >
             <p
               onClick={() => {
                 setIsArithMatic(true);
                 setModeactive(false);
                 setIsAgeCalc(false);
               }}
+              style={{
+                cursor: "pointer",
+                margin: "10px 0",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkTheme
+                  ? "#333"
+                  : "#f0f0f0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               Arithmatic Calculator
             </p>
-            <hr />
+            <hr style={{ borderColor: isDarkTheme ? "#424242" : "#ccc" }} />
             <p
               onClick={() => {
                 setIsArithMatic(false);
                 setIsAgeCalc(true);
                 setModeactive(false);
               }}
+              style={{
+                cursor: "pointer",
+                margin: "10px 0",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkTheme
+                  ? "#333"
+                  : "#f0f0f0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
             >
               Age Calculator
             </p>
-            <hr />
-            <p>Percentage Calculator</p>
+            <hr style={{ borderColor: isDarkTheme ? "#424242" : "#ccc" }} />
+            <p
+              style={{
+                cursor: "pointer",
+                margin: "10px 0",
+                padding: "5px 10px",
+                borderRadius: "4px",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = isDarkTheme
+                  ? "#333"
+                  : "#f0f0f0";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              Percentage Calculator
+            </p>
           </div>
         )}
       </div>
 
       <div className="calculator-container">
-        {/* Display Section */}
         <div className="display">
           <div className="expression-display" style={{ fontSize: "35px" }}>
             {renderOperationDisplay}
@@ -814,7 +772,6 @@ function Calculator() {
           </div>
         </div>
 
-        {/* Calculator Body */}
         {isArithmatic && (
           <div className="container">
             <div className="divider-span">
@@ -830,7 +787,6 @@ function Calculator() {
               </span>
             </div>
 
-            {/* Toolbar */}
             <div className="container-two">
               <div className="operation-buttons-div">
                 <div className="history-button-div">
@@ -874,7 +830,6 @@ function Calculator() {
               </div>
             </div>
 
-            {/* Calculator or History */}
             {showCalculator ? renderCalculatorButtons : renderHistory}
           </div>
         )}
@@ -882,12 +837,27 @@ function Calculator() {
         {isAgeCalc && (
           <div className="age-calculator">
             <div className="age-calc-cont">
-              <h3 style={{ color: "white" }}>ENTER DATE OF BIRTH</h3>
+              <h3
+                style={{
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                ENTER DATE OF BIRTH
+              </h3>
               <div className="date-selector">
                 <select
                   className="month-select"
                   value={dob.month}
                   onChange={(e) => setDob({ ...dob, month: e.target.value })}
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    cursor: "pointer",
+                  }}
                 >
                   <option>Jan</option>
                   <option>Feb</option>
@@ -909,6 +879,14 @@ function Calculator() {
                   onChange={(e) =>
                     setDob({ ...dob, day: parseInt(e.target.value) })
                   }
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    cursor: "pointer",
+                  }}
                 >
                   {[...Array(31)].map((_, i) => (
                     <option key={i + 1}>{i + 1}</option>
@@ -923,9 +901,25 @@ function Calculator() {
                   onChange={(e) =>
                     setDob({ ...dob, year: parseInt(e.target.value) || "" })
                   }
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    outline: "none",
+                  }}
                 />
               </div>
-              <h3 style={{ color: "white" }}>SELECT A DATE</h3>
+
+              <h3
+                style={{
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                SELECT A DATE
+              </h3>
 
               <div className="date-selector">
                 <select
@@ -934,6 +928,14 @@ function Calculator() {
                   onChange={(e) =>
                     setSelectedDate({ ...selectedDate, month: e.target.value })
                   }
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    cursor: "pointer",
+                  }}
                 >
                   <option>Jan</option>
                   <option>Feb</option>
@@ -958,6 +960,14 @@ function Calculator() {
                       day: parseInt(e.target.value),
                     })
                   }
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    cursor: "pointer",
+                  }}
                 >
                   {[...Array(31)].map((_, i) => (
                     <option key={i + 1}>{i + 1}</option>
@@ -975,6 +985,14 @@ function Calculator() {
                       year: parseInt(e.target.value) || "",
                     })
                   }
+                  style={{
+                    backgroundColor: isDarkTheme ? "#1a1a1a" : "#e0e0e0",
+                    color: isDarkTheme ? "white" : "#1a1a1a",
+                    border: isDarkTheme ? "1px solid gray" : "1px solid #999",
+                    borderRadius: "5px",
+                    padding: "8px",
+                    outline: "none",
+                  }}
                 />
               </div>
 
@@ -982,12 +1000,38 @@ function Calculator() {
                 <button
                   className="calculate-button"
                   onClick={() => calculateAge()}
+                  style={{
+                    backgroundColor: isDarkTheme ? "#4CAF50" : "#45a049",
+                    color: "white",
+                    border: "none",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                  }}
                 >
                   CALCULATE
                 </button>
               </div>
+
               <div className="show-age">
-                <p className="age-result">{ageResult}</p>
+                <p
+                  className="age-result"
+                  style={{
+                    color: isDarkTheme ? "greenyellow" : "#e67e22",
+                    fontFamily: "Inter, sans-serif",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    whiteSpace: "pre-line",
+                    textAlign: "center",
+                    padding: "10px",
+                    backgroundColor: isDarkTheme
+                      ? "rgba(0,0,0,0.3)"
+                      : "rgba(0,0,0,0.05)",
+                    borderRadius: "10px",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {ageResult}
+                </p>
               </div>
             </div>
           </div>
