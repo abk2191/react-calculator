@@ -115,7 +115,7 @@ function Calculator() {
     const result =
       `YOU ARE: ${years} years, ${months} months, ${days} days\n` +
       `| ${totalDays} days, ${weeks} weeks, ${remainingDays} days\n` +
-      `| ${hours} hours, ${minutes} minutes, ${seconds} seconds Old.`;
+      `| ${hours} hours, ${minutes} minutes, ${seconds} seconds | Old.`;
 
     setAgeResult(result);
   }
