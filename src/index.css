@@ -185,7 +185,7 @@ body {
   padding: 10px;
   position: absolute;
   z-index: 999999;
-  animation: jello; /* referring directly to the animation's @keyframe declaration */
+  animation: pulse; /* referring directly to the animation's @keyframe declaration */
   animation-duration: 0.2s; /* don't forget to set a duration! */
 }
 
@@ -518,13 +518,11 @@ body.dark-theme .date-select option {
 
 /* Age Result Display Theme */
 body.light-theme .age-result {
-  color: #e67e22 !important;
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: black !important;
 }
 
 body.dark-theme .age-result {
-  color: greenyellow !important;
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  color: white !important;
 }
 
 /* Calculate Button Theme (keeping your original calculate-button styles but making theme-aware) */

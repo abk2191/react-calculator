@@ -755,21 +755,23 @@ function Calculator() {
           <div className="expression-display" style={{ fontSize: "35px" }}>
             {renderOperationDisplay}
           </div>
-          <div className="result">
-            <p
-              key={result}
-              className="result-text animate__animated animate__zoomIn"
-              style={{
-                color: isDarkTheme ? "greenyellow" : "gold",
-                fontSize: "60px",
-                fontWeight: "bold",
-                fontFamily: "Inter, sans-serif",
-                "--animate-duration": "0.25s",
-              }}
-            >
-              {result}
-            </p>
-          </div>
+          {isArithmatic && (
+            <div className="result">
+              <p
+                key={result}
+                className="result-text animate__animated animate__zoomIn"
+                style={{
+                  color: isDarkTheme ? "greenyellow" : "gold",
+                  fontSize: "60px",
+                  fontWeight: "bold",
+                  fontFamily: "Inter, sans-serif",
+                  "--animate-duration": "0.25s",
+                }}
+              >
+                {result}
+              </p>
+            </div>
+          )}
         </div>
 
         {isArithmatic && (
@@ -1023,9 +1025,7 @@ function Calculator() {
                     whiteSpace: "pre-line",
                     textAlign: "center",
                     padding: "10px",
-                    backgroundColor: isDarkTheme
-                      ? "rgba(0,0,0,0.3)"
-                      : "rgba(0,0,0,0.05)",
+
                     borderRadius: "10px",
                     lineHeight: "1.6",
                   }}
