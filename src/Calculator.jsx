@@ -680,6 +680,7 @@ function Calculator() {
               onClick={() => {
                 setIsArithMatic(true);
                 setModeactive(false);
+                setIsAgeCalc(false);
               }}
             >
               Arithmatic Calculator
@@ -790,8 +791,11 @@ function Calculator() {
 
         {isAgeCalc && (
           <div className="age-calculator">
-            <div>
-              <h3 style={{ color: "white" }}>Enter your DOB</h3>
+            <div className="age-calc-cont">
+              <h3 style={{ color: "white" }}>ENTER DATE OF BIRTH</h3>
+              <h3 style={{ color: "white" }}>
+                SELECT A DATE (CURRENT DATE IS DEFAULT)
+              </h3>
             </div>
           </div>
         )}
