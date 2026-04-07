@@ -113,9 +113,9 @@ function Calculator() {
 
     // Format the result
     const result =
-      `${years} years, ${months} months, ${days} days\n` +
-      `(${totalDays} days, ${weeks} weeks, ${remainingDays} days)\n` +
-      `(${hours} hours, ${minutes} minutes, ${seconds} seconds)`;
+      `YOU ARE: ${years} years, ${months} months, ${days} days\n` +
+      `| ${totalDays} days, ${weeks} weeks, ${remainingDays} days\n` +
+      `| ${hours} hours, ${minutes} minutes, ${seconds} seconds Old.`;
 
     setAgeResult(result);
   }
@@ -986,9 +986,8 @@ function Calculator() {
                   CALCULATE
                 </button>
               </div>
-
               <div className="show-age">
-                <p className="age-result">YOU ARE: {ageResult} OLD.</p>
+                <p className="age-result">{ageResult}</p>
               </div>
             </div>
           </div>
