@@ -1018,14 +1018,11 @@ function Calculator() {
                 <p
                   className="age-result"
                   style={{
-                    color: isDarkTheme ? "greenyellow" : "#e67e22",
-                    fontFamily: "Inter, sans-serif",
                     fontSize: "13px",
                     fontWeight: "bold",
                     whiteSpace: "pre-line",
                     textAlign: "center",
                     padding: "10px",
-
                     borderRadius: "10px",
                     lineHeight: "1.6",
                   }}
