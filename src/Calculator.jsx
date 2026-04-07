@@ -9,6 +9,8 @@ const OPERATOR_DISPLAY_MAP = {
 };
 
 function Calculator() {
+  const [isArithmatic, setIsArithMatic] = useState(true);
+  const [isAgeCalc, setIsAgeCalc] = useState(false);
   const [modeactive, setModeactive] = useState(false);
   const [expression, setExpression] = useState(""); // Store without commas
   const [displayExpression, setDisplayExpression] = useState(""); // Display with commas
@@ -674,9 +676,24 @@ function Calculator() {
 
         {modeactive && (
           <div className="mode-menu">
-            <p>Arithmatic Calculator</p>
+            <p
+              onClick={() => {
+                setIsArithMatic(true);
+                setModeactive(false);
+              }}
+            >
+              Arithmatic Calculator
+            </p>
             <hr />
-            <p>Age Calculator</p>
+            <p
+              onClick={() => {
+                setIsArithMatic(false);
+                setIsAgeCalc(true);
+                setModeactive(false);
+              }}
+            >
+              Age Calculator
+            </p>
             <hr />
             <p>Percentage Calculator</p>
           </div>
@@ -707,67 +724,77 @@ function Calculator() {
         </div>
 
         {/* Calculator Body */}
-        <div className="container">
-          <div className="divider-span">
-            <span
-              style={{
-                color: isDarkTheme ? "rgb(57, 57, 57)" : "#ccc",
-                marginBottom: "0px",
-                margin: "0",
-                padding: "0",
-              }}
-            >
-              _______________________________________________
-            </span>
-          </div>
+        {isArithmatic && (
+          <div className="container">
+            <div className="divider-span">
+              <span
+                style={{
+                  color: isDarkTheme ? "rgb(57, 57, 57)" : "#ccc",
+                  marginBottom: "0px",
+                  margin: "0",
+                  padding: "0",
+                }}
+              >
+                _______________________________________________
+              </span>
+            </div>
 
-          {/* Toolbar */}
-          <div className="container-two">
-            <div className="operation-buttons-div">
-              <div className="history-button-div">
-                <button
-                  className="history-button"
-                  onClick={() => setShowCalculator(false)}
-                  aria-label="View history"
-                  style={{
-                    color: isDarkTheme ? "greenyellow" : "#1a1a1a",
-                  }}
-                >
-                  <i className="fa-solid fa-clock-rotate-left"></i>
-                </button>
-              </div>
+            {/* Toolbar */}
+            <div className="container-two">
+              <div className="operation-buttons-div">
+                <div className="history-button-div">
+                  <button
+                    className="history-button"
+                    onClick={() => setShowCalculator(false)}
+                    aria-label="View history"
+                    style={{
+                      color: isDarkTheme ? "greenyellow" : "#1a1a1a",
+                    }}
+                  >
+                    <i className="fa-solid fa-clock-rotate-left"></i>
+                  </button>
+                </div>
 
-              <div className="calculator-button-div">
-                <button
-                  className="calculator-button"
-                  onClick={() => setShowCalculator(true)}
-                  aria-label="Show calculator"
-                  style={{
-                    color: isDarkTheme ? "greenyellow" : "#1a1a1a",
-                  }}
-                >
-                  <i className="fa-solid fa-calculator"></i>
-                </button>
-              </div>
+                <div className="calculator-button-div">
+                  <button
+                    className="calculator-button"
+                    onClick={() => setShowCalculator(true)}
+                    aria-label="Show calculator"
+                    style={{
+                      color: isDarkTheme ? "greenyellow" : "#1a1a1a",
+                    }}
+                  >
+                    <i className="fa-solid fa-calculator"></i>
+                  </button>
+                </div>
 
-              <div className="delete-btn-div">
-                <button
-                  className="delete-button"
-                  onClick={handleDelete}
-                  aria-label="Delete last character"
-                  style={{
-                    color: isDarkTheme ? "gold" : "#1a1a1a",
-                  }}
-                >
-                  <i className="fa-solid fa-delete-left"></i>
-                </button>
+                <div className="delete-btn-div">
+                  <button
+                    className="delete-button"
+                    onClick={handleDelete}
+                    aria-label="Delete last character"
+                    style={{
+                      color: isDarkTheme ? "gold" : "#1a1a1a",
+                    }}
+                  >
+                    <i className="fa-solid fa-delete-left"></i>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Calculator or History */}
-          {showCalculator ? renderCalculatorButtons : renderHistory}
-        </div>
+            {/* Calculator or History */}
+            {showCalculator ? renderCalculatorButtons : renderHistory}
+          </div>
+        )}
+
+        {isAgeCalc && (
+          <div className="age-calculator">
+            <div>
+              <h3 style={{ color: "white" }}>Enter your DOB</h3>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
