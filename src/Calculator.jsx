@@ -1020,7 +1020,7 @@ function Calculator() {
                   style={{
                     color: isDarkTheme ? "greenyellow" : "#e67e22",
                     fontFamily: "Inter, sans-serif",
-                    fontSize: "16px",
+                    fontSize: "13px",
                     fontWeight: "bold",
                     whiteSpace: "pre-line",
                     textAlign: "center",
