@@ -9,6 +9,7 @@ const OPERATOR_DISPLAY_MAP = {
 };
 
 function Calculator() {
+  const [modeactive, setModeactive] = useState(false);
   const [expression, setExpression] = useState(""); // Store without commas
   const [displayExpression, setDisplayExpression] = useState(""); // Display with commas
   const [result, setResult] = useState("");
@@ -22,6 +23,10 @@ function Calculator() {
     const savedTheme = localStorage.getItem("calculator_theme");
     return savedTheme ? JSON.parse(savedTheme) : true; // Default to dark theme
   });
+
+  function toggleModeMenu() {
+    setModeactive((prev) => !prev);
+  }
 
   // Persist history and theme to localStorage
   useEffect(() => {
@@ -636,6 +641,10 @@ function Calculator() {
               <i className="fa-solid fa-flask"></i> iINTUIT Labs.
             </h3>
 
+            <button className="mode-button" onClick={() => toggleModeMenu()}>
+              Mode
+            </button>
+
             <button
               className="theme-toggle"
               onClick={() => setIsDarkTheme(!isDarkTheme)}
@@ -662,6 +671,16 @@ function Calculator() {
             </button>
           </div>
         </div>
+
+        {modeactive && (
+          <div className="mode-menu">
+            <p>Arithmatic Calculator</p>
+            <hr />
+            <p>Age Calculator</p>
+            <hr />
+            <p>Percentage Calculator</p>
+          </div>
+        )}
       </div>
 
       <div className="calculator-container">

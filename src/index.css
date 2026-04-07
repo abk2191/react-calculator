@@ -163,6 +163,37 @@ body {
   margin-top: 6px;
 }
 
+.mode-button {
+  color: gray;
+  background-color: #1a1a1a;
+  border: 2px solid gray;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: "Inter", sans-serif;
+}
+
+.mode-menu {
+  color: white;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  border: 1px solid #424242;
+  border-radius: 20px;
+  margin-left: 50px;
+  margin-top: 180px;
+  padding: 10px;
+  position: absolute;
+  z-index: 999999;
+}
+
+.mode-button.dark-theme {
+  background-color: #1a1a1a;
+}
+
+.mode-button.light-theme {
+  background-color: white;
+}
+
 .container-two {
   display: flex;
   align-items: center;
@@ -232,6 +263,7 @@ body.light-theme .history::-webkit-scrollbar-thumb {
 
 .brand-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
