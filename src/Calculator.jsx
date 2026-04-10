@@ -1322,7 +1322,7 @@ function Calculator() {
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
-              Arithmatic Calculator
+              ARITHMATIC CALCULATOR
             </p>
             <hr style={{ borderColor: isDarkTheme ? "#424242" : "#ccc" }} />
             <p
@@ -1348,7 +1348,7 @@ function Calculator() {
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
-              Age Calculator
+              AGE CALCULATOR
             </p>
             <hr style={{ borderColor: isDarkTheme ? "#424242" : "#ccc" }} />
             <p
@@ -1374,7 +1374,7 @@ function Calculator() {
                 e.currentTarget.style.backgroundColor = "transparent";
               }}
             >
-              Percentage Calculator
+              PERCENTAGE CALCULATOR
             </p>
           </div>
         )}

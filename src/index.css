@@ -185,6 +185,8 @@ body {
   padding: 10px;
   position: absolute;
   z-index: 999999;
+  animation: bounceIn; /* referring directly to the animation's @keyframe declaration */
+  animation-duration: 0.2s; /* don't forget to set a duration! */
 }
 
 /* Arrow pointing to mode button */
