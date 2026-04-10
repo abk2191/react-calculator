@@ -18,6 +18,7 @@ function Calculator() {
   const [ageResult, setAgeResult] = useState("");
   const [isArithmatic, setIsArithMatic] = useState(true);
   const [isAgeCalc, setIsAgeCalc] = useState(false);
+  const [isPercentageCalc, setIsPercentageCalc] = useState(false);
   const [modeactive, setModeactive] = useState(false);
   const [expression, setExpression] = useState("");
   const [displayExpression, setDisplayExpression] = useState("");
@@ -32,6 +33,37 @@ function Calculator() {
     const savedTheme = localStorage.getItem("calculator_theme");
     return savedTheme ? JSON.parse(savedTheme) : true;
   });
+
+  // Percentage Calculator States
+  const [activePercTab, setActivePercTab] = useState("standard");
+
+  // Standard Tab
+  const [standardPercent, setStandardPercent] = useState("");
+  const [standardOf, setStandardOf] = useState("");
+  const [standardResult, setStandardResult] = useState("");
+  const [standardSteps, setStandardSteps] = useState("");
+
+  // Common Phrases Tab
+  const [commonWhatPercent, setCommonWhatPercent] = useState("");
+  const [commonWhatOf, setCommonWhatOf] = useState("");
+  const [commonWhatResult, setCommonWhatResult] = useState("");
+  const [commonWhatSteps, setCommonWhatSteps] = useState("");
+
+  const [commonIsWhatIs, setCommonIsWhatIs] = useState("");
+  const [commonIsWhatOf, setCommonIsWhatOf] = useState("");
+  const [commonIsWhatResult, setCommonIsWhatResult] = useState("");
+  const [commonIsWhatSteps, setCommonIsWhatSteps] = useState("");
+
+  const [commonIsOfWhatIs, setCommonIsOfWhatIs] = useState("");
+  const [commonIsOfWhatPercent, setCommonIsOfWhatPercent] = useState("");
+  const [commonIsOfWhatResult, setCommonIsOfWhatResult] = useState("");
+  const [commonIsOfWhatSteps, setCommonIsOfWhatSteps] = useState("");
+
+  // Difference Tab
+  const [diffValue1, setDiffValue1] = useState("");
+  const [diffValue2, setDiffValue2] = useState("");
+  const [diffResult, setDiffResult] = useState("");
+  const [diffSteps, setDiffSteps] = useState("");
 
   function toggleModeMenu() {
     setModeactive((prev) => !prev);
@@ -93,20 +125,105 @@ function Calculator() {
     }
 
     const timeDiff = targetDate - birthDate;
-    const totalDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const weeks = Math.floor(totalDays / 7);
-    const remainingDays = totalDays % 7;
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const minutes = Math.floor(timeDiff / (1000 * 60));
     const seconds = Math.floor(timeDiff / 1000);
 
+    const formatNumber = (num) => {
+      return num.toLocaleString();
+    };
+
     const result =
-      `YOU ARE: (${years} years, ${months} months, ${days} days)\n` +
-      `| (${totalDays} days, ${weeks} weeks, ${remainingDays} days)` +
-      ` | (${hours} hours, ${minutes} minutes, ${seconds} seconds) | Old.`;
+      `${years} Years, ${months} Months, ${days} Days\n\n` +
+      `${formatNumber(hours)} Hours\n` +
+      `${formatNumber(minutes)} Minutes\n` +
+      `${formatNumber(seconds)} Seconds`;
 
     setAgeResult(result);
   }
+
+  // Percentage Calculator Functions
+  const calculateStandardPercentage = () => {
+    const percent = parseFloat(standardPercent);
+    const of = parseFloat(standardOf);
+    if (isNaN(percent) || isNaN(of)) {
+      setStandardResult("Please enter valid numbers");
+      setStandardSteps("");
+      return;
+    }
+    const calculated = (percent / 100) * of;
+    setStandardResult(`${calculated}`);
+    setStandardSteps(`${percent}% × ${of} = ${calculated}`);
+  };
+
+  const clearStandard = () => {
+    setStandardPercent("");
+    setStandardOf("");
+    setStandardResult("");
+    setStandardSteps("");
+  };
+
+  const calculateCommonWhat = () => {
+    const percent = parseFloat(commonWhatPercent);
+    const of = parseFloat(commonWhatOf);
+    if (isNaN(percent) || isNaN(of)) {
+      setCommonWhatResult("Please enter valid numbers");
+      setCommonWhatSteps("");
+      return;
+    }
+    const calculated = (percent / 100) * of;
+    setCommonWhatResult(`${calculated}`);
+    setCommonWhatSteps(`${percent}% × ${of} = ${calculated}`);
+  };
+
+  const calculateCommonIsWhat = () => {
+    const isVal = parseFloat(commonIsWhatIs);
+    const ofVal = parseFloat(commonIsWhatOf);
+    if (isNaN(isVal) || isNaN(ofVal) || ofVal === 0) {
+      setCommonIsWhatResult("Please enter valid numbers");
+      setCommonIsWhatSteps("");
+      return;
+    }
+    const calculated = (isVal / ofVal) * 100;
+    setCommonIsWhatResult(`${calculated}%`);
+    setCommonIsWhatSteps(`${isVal} / ${ofVal} × 100 = ${calculated}%`);
+  };
+
+  const calculateCommonIsOfWhat = () => {
+    const isVal = parseFloat(commonIsOfWhatIs);
+    const percent = parseFloat(commonIsOfWhatPercent);
+    if (isNaN(isVal) || isNaN(percent) || percent === 0) {
+      setCommonIsOfWhatResult("Please enter valid numbers");
+      setCommonIsOfWhatSteps("");
+      return;
+    }
+    const calculated = (isVal / percent) * 100;
+    setCommonIsOfWhatResult(`${calculated}`);
+    setCommonIsOfWhatSteps(`${isVal} / ${percent}% × 100 = ${calculated}`);
+  };
+
+  const calculateDifference = () => {
+    const v1 = parseFloat(diffValue1);
+    const v2 = parseFloat(diffValue2);
+    if (isNaN(v1) || isNaN(v2)) {
+      setDiffResult("Please enter valid numbers");
+      setDiffSteps("");
+      return;
+    }
+    const average = (v1 + v2) / 2;
+    const difference = ((Math.abs(v1 - v2) / average) * 100).toFixed(2);
+    setDiffResult(`${difference}%`);
+    setDiffSteps(
+      `|${v1} - ${v2}| / ((${v1} + ${v2})/2) × 100 = ${difference}%`,
+    );
+  };
+
+  const clearDifference = () => {
+    setDiffValue1("");
+    setDiffValue2("");
+    setDiffResult("");
+    setDiffSteps("");
+  };
 
   useEffect(() => {
     localStorage.setItem(
@@ -605,6 +722,511 @@ function Calculator() {
     [calculationHistory, isDarkTheme],
   );
 
+  const renderPercentageCalculator = () => (
+    <div className="percentage-calculator" style={{ padding: "20px" }}>
+      {/* Tabs */}
+      <div
+        style={{
+          display: "flex",
+          gap: "5px",
+          marginBottom: "25px",
+          borderBottom: isDarkTheme ? "1px solid #333" : "1px solid #ddd",
+          paddingBottom: "0px",
+        }}
+      >
+        {[
+          { id: "standard", label: "Percentage calculator" },
+          { id: "common", label: "Common phrases" },
+          { id: "difference", label: "Percentage difference" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActivePercTab(tab.id)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: "12px 20px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: activePercTab === tab.id ? "600" : "400",
+              color: isDarkTheme
+                ? activePercTab === tab.id
+                  ? "greenyellow"
+                  : "#aaa"
+                : activePercTab === tab.id
+                  ? "#1a1a1a"
+                  : "#666",
+              borderBottom:
+                activePercTab === tab.id
+                  ? `2px solid ${isDarkTheme ? "greenyellow" : "#1a1a1a"}`
+                  : "none",
+              textTransform: "capitalize",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Standard Tab */}
+      {activePercTab === "standard" && (
+        <div>
+          <div
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+              padding: "20px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="number"
+                placeholder="%"
+                value={standardPercent}
+                onChange={(e) => setStandardPercent(e.target.value)}
+                style={{
+                  width: "90%",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                  fontSize: "16px",
+                  marginBottom: "10px",
+                }}
+              />
+              <input
+                type="number"
+                placeholder="of"
+                value={standardOf}
+                onChange={(e) => setStandardOf(e.target.value)}
+                style={{
+                  width: "90%",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                  fontSize: "16px",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={calculateStandardPercentage}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Calculate
+              </button>
+              <button
+                onClick={clearStandard}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: isDarkTheme ? "#444" : "#ddd",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+          {standardResult && (
+            <div
+              style={{
+                padding: "15px",
+                backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+                borderRadius: "10px",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "24px",
+                  fontWeight: "bold",
+                  color: isDarkTheme ? "greenyellow" : "gold",
+                  margin: "0 0 10px 0",
+                }}
+              >
+                Result: {standardResult}
+              </p>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: isDarkTheme ? "#aaa" : "#555",
+                  margin: 0,
+                }}
+              >
+                {standardSteps}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Common Phrases Tab */}
+      {activePercTab === "common" && (
+        <div>
+          {/* what is % of */}
+          <div
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+              padding: "20px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <span style={{ color: isDarkTheme ? "white" : "#1a1a1a" }}>
+                what is
+              </span>
+              <input
+                type="number"
+                placeholder="%"
+                value={commonWhatPercent}
+                onChange={(e) => setCommonWhatPercent(e.target.value)}
+                style={{
+                  width: "80px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <span style={{ color: isDarkTheme ? "white" : "#1a1a1a" }}>
+                % of
+              </span>
+              <input
+                type="number"
+                placeholder="number"
+                value={commonWhatOf}
+                onChange={(e) => setCommonWhatOf(e.target.value)}
+                style={{
+                  width: "100px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <button
+                onClick={calculateCommonWhat}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Calculate
+              </button>
+            </div>
+            {commonWhatResult && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#0a0a0a" : "#e8e8e8",
+                  borderRadius: "8px",
+                }}
+              >
+                <p style={{ margin: 0, color: isDarkTheme ? "#ddd" : "#333" }}>
+                  {commonWhatSteps}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* is what % of */}
+          <div
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+              padding: "20px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <input
+                type="number"
+                placeholder="number"
+                value={commonIsWhatIs}
+                onChange={(e) => setCommonIsWhatIs(e.target.value)}
+                style={{
+                  width: "100px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <span style={{ color: isDarkTheme ? "white" : "#1a1a1a" }}>
+                is what % of
+              </span>
+              <input
+                type="number"
+                placeholder="number"
+                value={commonIsWhatOf}
+                onChange={(e) => setCommonIsWhatOf(e.target.value)}
+                style={{
+                  width: "100px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <button
+                onClick={calculateCommonIsWhat}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Calculate
+              </button>
+            </div>
+            {commonIsWhatResult && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#0a0a0a" : "#e8e8e8",
+                  borderRadius: "8px",
+                }}
+              >
+                <p style={{ margin: 0, color: isDarkTheme ? "#ddd" : "#333" }}>
+                  {commonIsWhatSteps}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* is % of what */}
+          <div
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+              padding: "20px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <input
+                type="number"
+                placeholder="number"
+                value={commonIsOfWhatIs}
+                onChange={(e) => setCommonIsOfWhatIs(e.target.value)}
+                style={{
+                  width: "100px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <span style={{ color: isDarkTheme ? "white" : "#1a1a1a" }}>
+                is
+              </span>
+              <input
+                type="number"
+                placeholder="%"
+                value={commonIsOfWhatPercent}
+                onChange={(e) => setCommonIsOfWhatPercent(e.target.value)}
+                style={{
+                  width: "80px",
+                  padding: "8px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                }}
+              />
+              <span style={{ color: isDarkTheme ? "white" : "#1a1a1a" }}>
+                % of what
+              </span>
+              <button
+                onClick={calculateCommonIsOfWhat}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Calculate
+              </button>
+            </div>
+            {commonIsOfWhatResult && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#0a0a0a" : "#e8e8e8",
+                  borderRadius: "8px",
+                }}
+              >
+                <p style={{ margin: 0, color: isDarkTheme ? "#ddd" : "#333" }}>
+                  {commonIsOfWhatSteps}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Difference Tab */}
+      {activePercTab === "difference" && (
+        <div>
+          <div
+            style={{
+              backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+              padding: "20px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            <div style={{ marginBottom: "15px" }}>
+              <input
+                type="number"
+                placeholder="Value 1"
+                value={diffValue1}
+                onChange={(e) => setDiffValue1(e.target.value)}
+                style={{
+                  width: "90%",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                  fontSize: "16px",
+                  marginBottom: "10px",
+                }}
+              />
+              <input
+                type="number"
+                placeholder="Value 2"
+                value={diffValue2}
+                onChange={(e) => setDiffValue2(e.target.value)}
+                style={{
+                  width: "90%",
+                  padding: "12px",
+                  backgroundColor: isDarkTheme ? "#2a2a2a" : "white",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: isDarkTheme ? "1px solid #444" : "1px solid #ccc",
+                  borderRadius: "5px",
+                  fontSize: "16px",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={calculateDifference}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
+              >
+                Calculate
+              </button>
+              <button
+                onClick={clearDifference}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: isDarkTheme ? "#444" : "#ddd",
+                  color: isDarkTheme ? "white" : "#1a1a1a",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+          {diffResult && (
+            <div
+              style={{
+                padding: "15px",
+                backgroundColor: isDarkTheme ? "#1a1a1a" : "#f5f5f5",
+                borderRadius: "10px",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: isDarkTheme ? "greenyellow" : "gold",
+                  margin: "0 0 10px 0",
+                }}
+              >
+                Result: {diffResult}
+              </p>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: isDarkTheme ? "#aaa" : "#555",
+                  margin: 0,
+                }}
+              >
+                {diffSteps}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       <div className="brand-container">
@@ -682,6 +1304,7 @@ function Calculator() {
                 setIsArithMatic(true);
                 setModeactive(false);
                 setIsAgeCalc(false);
+                setIsPercentageCalc(false);
               }}
               style={{
                 cursor: "pointer",
@@ -706,6 +1329,7 @@ function Calculator() {
               onClick={() => {
                 setIsArithMatic(false);
                 setIsAgeCalc(true);
+                setIsPercentageCalc(false);
                 setModeactive(false);
               }}
               style={{
@@ -728,6 +1352,12 @@ function Calculator() {
             </p>
             <hr style={{ borderColor: isDarkTheme ? "#424242" : "#ccc" }} />
             <p
+              onClick={() => {
+                setIsArithMatic(false);
+                setIsAgeCalc(false);
+                setIsPercentageCalc(true);
+                setModeactive(false);
+              }}
               style={{
                 cursor: "pointer",
                 margin: "10px 0",
@@ -753,7 +1383,7 @@ function Calculator() {
       <div className="calculator-container">
         <div className="display">
           <div className="expression-display" style={{ fontSize: "35px" }}>
-            {renderOperationDisplay}
+            {isArithmatic && renderOperationDisplay}
           </div>
           {isArithmatic && (
             <div className="result">
@@ -1033,6 +1663,8 @@ function Calculator() {
             </div>
           </div>
         )}
+
+        {isPercentageCalc && renderPercentageCalculator()}
       </div>
     </>
   );
