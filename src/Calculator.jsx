@@ -723,7 +723,7 @@ function Calculator() {
   );
 
   const renderPercentageCalculator = () => (
-    <div className="percentage-calculator" style={{ padding: "20px" }}>
+    <div className="percentage-calculator">
       {/* Tabs */}
       <div
         style={{

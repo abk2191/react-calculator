@@ -305,6 +305,7 @@ body.light-theme .mode-menu::after {
 
 .percentage-calculator {
   font-family: "Inter", sans-serif;
+  margin-top: -60px;
 }
 
 .mode-button.dark-theme {
