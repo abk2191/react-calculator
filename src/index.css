@@ -243,9 +243,10 @@ body.light-theme .mode-menu::after {
   flex-direction: column;
   gap: 40px;
   text-align: center;
-  width: 80%;
-
-  margin-top: 200px;
+  width: 100%;
+  border-top: 1px solid gray;
+  margin-top: 180px;
+  padding-top: 12px;
 }
 
 .show-age {
@@ -306,6 +307,8 @@ body.light-theme .mode-menu::after {
 .percentage-calculator {
   font-family: "Inter", sans-serif;
   margin-top: -60px;
+  border-top: 1px solid gray;
+  padding-top: 12px;
 }
 
 .mode-button.dark-theme {
